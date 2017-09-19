@@ -1,4 +1,9 @@
-﻿// Author : Alvin George, KPMG
+﻿// Recognition : Alvin George, KPMG
+
+// TODO: Clean up cruft
+// There is a 'toolCanvas' which gets cleared and redrawn as the user drags around with the mouse. when the drawing is complete this then gets baked into the canvas fo rthe current layer
+// The layers all get baked into the final 'whiteboard' canvas (canvaso - canvasOutput? need renaming) which is transformed correctly depending on user view params.
+
 
 var DrawState =
 {
@@ -46,6 +51,7 @@ function DrawIt(drawObject, syncServer) {
     switch (drawObject.currentState) {
       case DrawState.Inprogress:
       case DrawState.Completed:
+        // TODO: when completed, draw this to the current later context and clear the 'working' or 'tool' context
         toolContext.clearRect(0, 0, toolCanvas.width, toolCanvas.height);
         toolContext.beginPath();
         toolContext.moveTo(drawObject.StartX, drawObject.StartY);
@@ -236,7 +242,7 @@ $(document).ready(function () {
       return;
     }
 
-    toolCanvas.id = 'imageTemp';
+    toolCanvas.id = 'toolCanvas';
     toolCanvas.width = canvaso.width;
     toolCanvas.height = canvaso.height;
     container.appendChild(toolCanvas);
@@ -381,7 +387,9 @@ function updatecanvas() {
   var w = img.width;
   var h = img.height;
   compositingContext.drawImage(img, 0, 0, w, h);
-  compositingContext.drawImage(toolCanvas, 0, 0/*, w, h*/); // TODO: Stretch layers to match background
+
+  // Shouldn't do anything with the tool context here, as this is an overlay that will be baked in when tool is finished.
+  compositingContext.drawImage(toolCanvas, 0, 0, toolCanvas.width, toolCanvas.height); // TODO: Stretch layers to match background
 
   compositingContext.fillText(panTool.panX, 10, 10); // TODO: Stretch layers to match background
   compositingContext.fillText(panTool.panY, 30, 10); // TODO: Stretch layers to match background
@@ -402,6 +410,7 @@ function updatecanvas() {
   contexto.drawImage(compositingCanvas, canvaso.width, canvaso.height);
 
   // Clear the temporary canvas
+  contexto.drawImage(compositingCanvas, 0, 0); // TODO: Stretch layers to match background
   toolContext.clearRect(0, 0, toolCanvas.width, toolCanvas.height);
 }
 
