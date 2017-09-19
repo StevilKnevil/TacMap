@@ -1,6 +1,5 @@
 ﻿// Author : Alvin George, KPMG
 
-
 var DrawState =
 {
   Started: 0,
@@ -20,7 +19,6 @@ var whiteboardHub;
 var tool_default = 'line';
 var toolCanvas, toolContext, canvaso, contexto, compositingCanvas, compositingContext;
 
-var tools = {};
 var tool;
 var WIDTH;
 var HEIGHT;
@@ -34,6 +32,11 @@ var selectedLineWidth = 5;
 
 var drawObjectsCollection = [];
 var drawPlaybackCollection = [];
+
+// TODO shopuldn't need these
+var eraseTool = new tools.erase();
+var panTool = new tools.pan();
+
 
 
 function DrawIt(drawObject, syncServer) {
@@ -304,8 +307,7 @@ function ev_canvas(ev) {
     // should we temporarily change 'current tool'? maybe that's OK, if we store the previous tool? The toolbar could evenupdate to show that tool.
     // Have a 'tool' base class with an 'exit' function that cleans itself up ok.
     // Imaging if you sragged out of canvas and then selected a new tool? The old one must close gracefully.
-    if (ev.buttons == 1 || ev.buttons == 0)
-    {
+    if (ev.buttons == 1 || ev.buttons == 0) {
       // Call the event handler of the tool.
       var func = tool[ev.type];
 
@@ -313,7 +315,7 @@ function ev_canvas(ev) {
         func(ev);
       }
     }
-
+    
     // RMB
     if (ev.buttons == 2 || ev.buttons == 0) {
       // Call the event handler of the tool.
@@ -336,6 +338,7 @@ function ev_canvas(ev) {
         func(ev);
       }
     }
+    
   }
   catch (err) {
     alert(err.message);
@@ -365,6 +368,7 @@ function getMouse(e) {
   mx = e._x;
   my = e._y;
 }
+
 
 function updatecanvas() {
   // TODO: background image size
@@ -399,251 +403,53 @@ function updatecanvas() {
 
   // Clear the temporary canvas
   toolContext.clearRect(0, 0, toolCanvas.width, toolCanvas.height);
-
-  /*
-  // Draw a background
-  var img = new Image;
-  img.src = "/images/pencil_dim.png";
-  // TODO make sure that the images is loaded, ideall use the onLoad(0 function for the document element (hidden?)
-  var w = img.width;
-  var h = img.height;
-  compositingContext.drawImage(img, panX + w, panY + h, w, h);
-  compositingContext.drawImage(img, panX + w, panY + 0, w, h);
-  compositingContext.drawImage(img, panX + w, panY - h, w, h);
-  compositingContext.drawImage(img, panX + 0, panY + h, w, h);
-  compositingContext.drawImage(img, panX + 0, panY + 0, w, h);
-  compositingContext.drawImage(img, panX + 0, panY - h, w, h);
-  compositingContext.drawImage(img, panX - w, panY + h, w, h);
-  compositingContext.drawImage(img, panX - w, panY + 0, w, h);
-  compositingContext.drawImage(img, panX - w, panY - h, w, h);
-
-  // copy the generated content
-  contexto.drawImage(toolCanvas, panX, panY);
-  context.clearRect(0, 0, toolCanvas.width, toolCanvas.height);
-  */
-
 }
 
-tools.pencil = function () {
-  var tool = this;
-  this.started = false;
-  drawObjectsCollection = [];
-  this.mousedown = function (ev) {
-    var drawObject = new DrawObject();
-    drawObject.Tool = DrawTool.Pencil;
-    tool.started = true;
-    drawObject.currentState = DrawState.Started;
-    drawObject.StartX = ev._x;
-    drawObject.StartY = ev._y;
-    DrawIt(drawObject, true);
-    drawObjectsCollection.push(drawObject);
-  };
 
-  this.mousemove = function (ev) {
-    if (tool.started) {
-      var drawObject = new DrawObject();
-      drawObject.Tool = DrawTool.Pencil;
-      drawObject.currentState = DrawState.Inprogress;
-      drawObject.CurrentX = ev._x;
-      drawObject.CurrentY = ev._y;
-      DrawIt(drawObject, true);
-      drawObjectsCollection.push(drawObject);
-    }
-  };
-
-  // This is called when you release the mouse button.
-  this.mouseup = function (ev) {
-    if (tool.started) {
-      var drawObject = new DrawObject();
-      drawObject.Tool = DrawTool.Pencil;
-      tool.started = false;
-      drawObject.currentState = DrawState.Completed;
-      drawObject.CurrentX = ev._x;
-      drawObject.CurrentY = ev._y;
-      DrawIt(drawObject, true);
-      drawObjectsCollection.push(drawObject);
-      var message = JSON.stringify(drawObjectsCollection);
-      whiteboardHub.server.sendDraw(message, $("#sessinId").val(), $("#groupName").val(), $("#userName").val());
-
-    }
-  };
-  this.mouseout = function (ev) {
-    if (tool.started) {
-      var message = JSON.stringify(drawObjectsCollection);
-      whiteboardHub.server.sendDraw(message, $("#sessinId").val(), $("#groupName").val(), $("#userName").val());
-    }
-    tool.started = false;
-
+function SelectTool(toolName) {
+  if (tools[toolName]) {
+    tool = new tools[toolName]();
   }
-};
 
-tools.rect = function () {
-  var tool = this;
-  var drawObject = new DrawObject();
-  drawObject.Tool = DrawTool.Rect;
-  this.started = false;
+  if (toolName == "line" || toolName == "curve" || toolName == "measure")
+    canvaso.style.cursor = "crosshair";
+  else if (toolName == "select")
+    canvaso.style.cursor = "default";
+  else if (toolName == "text")
+    canvaso.style.cursor = "text";
 
-  this.mousedown = function (ev) {
-    drawObject.currentState = DrawState.Started;
-    drawObject.StartX = ev._x;
-    drawObject.StartY = ev._y;
-    tool.started = true;
-  };
-
-  this.mousemove = function (ev) {
-    if (!tool.started) {
-      return;
-    }
-    drawObject.currentState = DrawState.Inprogress;
-    drawObject.CurrentX = ev._x;
-    drawObject.CurrentY = ev._y;
-    DrawIt(drawObject, true);
-  };
-
-  this.mouseup = function (ev) {
-    if (tool.started) {
-      drawObject.currentState = DrawState.Completed;
-      drawObject.CurrentX = ev._x;
-      drawObject.CurrentY = ev._y;
-      DrawIt(drawObject, true);
-      tool.started = false;
-
-    }
-  };
-};
-
-tools.line = function () {
-  var tool = this;
-  var drawObject = new DrawObject();
-  drawObject.Tool = DrawTool.Line;
-  this.started = false;
-
-  this.mousedown = function (ev) {
-    drawObject.currentState = DrawState.Started;
-    drawObject.StartX = ev._x;
-    drawObject.StartY = ev._y;
-    tool.started = true;
-  };
-
-  this.mousemove = function (ev) {
-    if (!tool.started) {
-      return;
-    }
-    drawObject.currentState = DrawState.Inprogress;
-    drawObject.CurrentX = ev._x;
-    drawObject.CurrentY = ev._y;
-    DrawIt(drawObject, true);
-  };
-
-  this.mouseup = function (ev) {
-    if (tool.started) {
-      drawObject.currentState = DrawState.Completed;
-      drawObject.CurrentX = ev._x;
-      drawObject.CurrentY = ev._y;
-      DrawIt(drawObject, true);
-      tool.started = false;
-    }
-  };
-};
-
-tools.text = function () {
-  var tool = this;
-  this.started = false;
-  var drawObject = new DrawObject();
-  drawObject.Tool = DrawTool.Text;
-  this.mousedown = function (ev) {
-
-    if (!tool.started) {
-      tool.started = true;
-      drawObject.currentState = DrawState.Started;
-      drawObject.StartX = ev._x;
-      drawObject.StartY = ev._y;
-      var text_to_add = prompt('Enter the text:', ' ', 'Add Text');
-      drawObject.Text = "";
-      drawObject.Text = text_to_add;
-      if (text_to_add.length < 1) {
-        tool.started = false;
-        return;
-      }
-
-      DrawIt(drawObject, true);
-      tool.started = false;
-      updatecanvas();
-    }
-  };
-
-  this.mousemove = function (ev) {
-    if (!tool.started) {
-      return;
-    }
-  };
-
-  this.mouseup = function (ev) {
-    if (tool.started) {
-      tool.mousemove(ev);
-      tool.started = false;
-      updatecanvas();
-    }
-  };
+  ChangeIcons(toolName);
 }
 
-tools.erase = function (ev) {
 
-  var tool = this;
-  this.started = false;
-  var drawObject = new DrawObject();
-  drawObject.Tool = DrawTool.Erase;
-  this.mousedown = function (ev) {
-    tool.started = true;
-    drawObject.currentState = DrawState.Started;
-    drawObject.StartX = ev._x;
-    drawObject.StartY = ev._y;
-    DrawIt(drawObject, true);
-  };
-  this.mousemove = function (ev) {
-    if (!tool.started) {
-      return;
-    }
-    drawObject.currentState = DrawState.Inprogress;
-    drawObject.CurrentX = ev._x;
-    drawObject.CurrentY = ev._y;
-    DrawIt(drawObject, true);
-  };
-  this.mouseup = function (ev) {
-    drawObject.currentState = DrawState.Completed;
-    drawObject.CurrentX = ev._x;
-    drawObject.CurrentY = ev._y;
-    DrawIt(drawObject, true);
-    tool.started = false;
-  }
-};
+function ChangeIcons(toolName) {
 
-var eraseTool = new tools.erase;
+  if (toolName == "line")
+    $("#imgline").attr({ src: "/images/line.png", border: "1px" });
+  else
+    $("#imgline").attr({ src: "/images/line_dim.png", border: "0px" });
 
-tools.pan = function (ev) {
+  if (toolName == "pencil")
+    $("#imgpencil").attr({ src: "/images/pencil.png", border: "1px" });
+  else
+    $("#imgpencil").attr({ src: "/images/pencil_dim.png", border: "0px" });
 
-  var tool = this;
-  this.started = false;
-  this.panX = 0;
-  this.panY = 0;
+  if (toolName == "rect")
+    $("#imgrect").attr({ src: "/images/rect.png", border: "1px" });
+  else
+    $("#imgrect").attr({ src: "/images/rect_dim.png", border: "0px" });
 
-  this.mousedown = function (ev) {
-    tool.started = true;
-  };
-  this.mousemove = function (ev) {
-    if (!tool.started) {
-      return;
-    }
-    tool.panX += ev.movementX;
-    tool.panY += ev.movementY;
-    updatecanvas();
-  };
-  this.mouseup = function (ev) {
-    tool.started = false;
-  }
-};
+  if (toolName == "erase")
+    $("#imgerase").attr({ src: "/images/erase.png", border: "1px" });
+  else
+    $("#imgerase").attr({ src: "/images/erase_dim.png", border: "0px" });
 
-var panTool = new tools.pan;
+
+  if (toolName == "text")
+    $("#imgtext").attr({ src: "/images/text.png", border: "1px" });
+  else
+    $("#imgtext").attr({ src: "/images/text_dim.png", border: "0px" });
+}
 
 function fireEvent(element, event) {
   var evt;
@@ -685,52 +491,6 @@ function LoadImageIntoCanvas(bgImageUrl) {
   SelectTool(tool_default);
 }
 
-function SelectTool(toolName) {
-  if (tools[toolName]) {
-    tool = new tools[toolName]();
-  }
-
-  if (toolName == "line" || toolName == "curve" || toolName == "measure")
-    canvaso.style.cursor = "crosshair";
-  else if (toolName == "select")
-    canvaso.style.cursor = "default";
-  else if (toolName == "text")
-    canvaso.style.cursor = "text";
-
-  ChangeIcons(toolName);
-
-}
-function ChangeIcons(toolName) {
-
-  if (toolName == "line")
-    $("#imgline").attr({ src: "/images/line.png", border: "1px" });
-  else
-    $("#imgline").attr({ src: "/images/line_dim.png", border: "0px" });
-
-  if (toolName == "pencil")
-    $("#imgpencil").attr({ src: "/images/pencil.png", border: "1px" });
-  else
-    $("#imgpencil").attr({ src: "/images/pencil_dim.png", border: "0px" });
-
-  if (toolName == "rect")
-    $("#imgrect").attr({ src: "/images/rect.png", border: "1px" });
-  else
-    $("#imgrect").attr({ src: "/images/rect_dim.png", border: "0px" });
-
-  if (toolName == "erase")
-    $("#imgerase").attr({ src: "/images/erase.png", border: "1px" });
-  else
-    $("#imgerase").attr({ src: "/images/erase_dim.png", border: "0px" });
-
-
-  if (toolName == "text")
-    $("#imgtext").attr({ src: "/images/text.png", border: "1px" });
-  else
-    $("#imgtext").attr({ src: "/images/text_dim.png", border: "0px" });
-
-
-
-}
 function getAbsolutePosition(e) {
   var curleft = curtop = 0;
   if (e.offsetParent) {
