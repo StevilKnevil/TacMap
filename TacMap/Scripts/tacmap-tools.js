@@ -43,6 +43,7 @@ tools.pencil = function () {
 
     }
   };
+  /*
   this.mouseout = function (ev) {
     if (tool.started) {
       var message = JSON.stringify(drawObjectsCollection);
@@ -51,6 +52,7 @@ tools.pencil = function () {
     tool.started = false;
 
   }
+  */
 };
 
 tools.rect = function () {
