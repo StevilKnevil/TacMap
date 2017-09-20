@@ -2,3 +2,4 @@ packages/
 TacMap/bin/
 TacMap/obj/
 .vs/
+*.user
