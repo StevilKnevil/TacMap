@@ -38,7 +38,7 @@ var selectedLineWidth = 5;
 var drawObjectsCollection = [];
 var drawPlaybackCollection = [];
 
-// TODO shopuldn't need these
+// TODO ultimately shouldn't need these
 var eraseTool = new tools.erase();
 var panTool = new tools.pan();
 
@@ -51,7 +51,7 @@ function DrawIt(drawObject, syncServer) {
     switch (drawObject.currentState) {
       case DrawState.Inprogress:
       case DrawState.Completed:
-        // TODO: when completed, draw this to the current later context and clear the 'working' or 'tool' context
+        // TODO: when completed, draw this to the current layer context and clear the 'working' or 'tool' context
         toolContext.clearRect(0, 0, toolCanvas.width, toolCanvas.height);
         toolContext.beginPath();
         toolContext.moveTo(drawObject.StartX, drawObject.StartY);
@@ -148,6 +148,8 @@ function DrawIt(drawObject, syncServer) {
 
   }
 
+  // Send the current state of the tool to the server so all clients can see it, but don't do it for pencil as that should only get sent on completion to avoid message spam
+  // TODO: Only bother sending on completion for all tools?
   if (syncServer && drawObject.Tool != DrawTool.Pencil) {
 
     drawObjectsCollection = [];
