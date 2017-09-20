@@ -220,12 +220,6 @@ $(document).ready(function () {
     }
     canvaso.width = 700;
     canvaso.height = 400;
-    // suppress right click menu
-    /*
-    canvaso.oncontextmenu = function () {
-      alert('right click');   
-      return false;
-    }*/
 
     // Get the 2D canvas context.
     contexto = canvaso.getContext('2d');
@@ -384,6 +378,10 @@ function updatecanvas() {
 
   // Draw a background
   var img = new Image;
+  img.onload = function()
+  {
+    // Extract the background image and store it.
+  }
   img.src = "/images/pencil_dim.png";
   // TODO make sure that the images is loaded, ideally use the onLoad() function for the document element (hidden?)
   var w = img.width;
