@@ -12,17 +12,11 @@ namespace OnlineWhiteBoard_4.SignalR
     {
         public void JoinGroup( string groupName)
         {
-
              Groups.Add(Context.ConnectionId, groupName);
-            
-
         }
         public void JoinChat(string name, string groupName)
         {
-
-           
             Clients.Group(groupName).ChatJoined(name);
-
         }
 
         public void SendDraw(string drawObject, string sessionId, string groupName,string name)
