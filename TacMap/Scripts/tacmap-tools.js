@@ -6,9 +6,9 @@ tools.pencil = function () {
   drawObjectsCollection = [];
   this.mousedown = function (ev) {
     var drawObject = new DrawObject();
-    drawObject.Tool = DrawTool.Pencil;
+    drawObject.Tool = DrawTools.Pencil;
     tool.started = true;
-    drawObject.currentState = DrawState.Started;
+    drawObject.DrawState = DrawStates.Started;
     drawObject.StartX = ev._x;
     drawObject.StartY = ev._y;
     DrawIt(drawObject, true);
@@ -18,8 +18,8 @@ tools.pencil = function () {
   this.mousemove = function (ev) {
     if (tool.started) {
       var drawObject = new DrawObject();
-      drawObject.Tool = DrawTool.Pencil;
-      drawObject.currentState = DrawState.Inprogress;
+      drawObject.Tool = DrawTools.Pencil;
+      drawObject.DrawState = DrawState.Inprogress;
       drawObject.CurrentX = ev._x;
       drawObject.CurrentY = ev._y;
       DrawIt(drawObject, true);
@@ -31,9 +31,9 @@ tools.pencil = function () {
   this.mouseup = function (ev) {
     if (tool.started) {
       var drawObject = new DrawObject();
-      drawObject.Tool = DrawTool.Pencil;
+      drawObject.Tool = DrawTools.Pencil;
       tool.started = false;
-      drawObject.currentState = DrawState.Completed;
+      drawObject.DrawState = DrawStates.Completed;
       drawObject.CurrentX = ev._x;
       drawObject.CurrentY = ev._y;
       DrawIt(drawObject, true);
@@ -58,11 +58,11 @@ tools.pencil = function () {
 tools.rect = function () {
   var tool = this;
   var drawObject = new DrawObject();
-  drawObject.Tool = DrawTool.Rect;
+  drawObject.Tool = DrawTools.Rect;
   this.started = false;
 
   this.mousedown = function (ev) {
-    drawObject.currentState = DrawState.Started;
+    drawObject.DrawState = DrawStates.Started;
     drawObject.StartX = ev._x;
     drawObject.StartY = ev._y;
     tool.started = true;
@@ -72,7 +72,7 @@ tools.rect = function () {
     if (!tool.started) {
       return;
     }
-    drawObject.currentState = DrawState.Inprogress;
+    drawObject.DrawState = DrawStates.Inprogress;
     drawObject.CurrentX = ev._x;
     drawObject.CurrentY = ev._y;
     DrawIt(drawObject, true);
@@ -80,7 +80,7 @@ tools.rect = function () {
 
   this.mouseup = function (ev) {
     if (tool.started) {
-      drawObject.currentState = DrawState.Completed;
+      drawObject.DrawState = DrawStates.Completed;
       drawObject.CurrentX = ev._x;
       drawObject.CurrentY = ev._y;
       DrawIt(drawObject, true);
@@ -93,11 +93,11 @@ tools.rect = function () {
 tools.line = function () {
   var tool = this;
   var drawObject = new DrawObject();
-  drawObject.Tool = DrawTool.Line;
+  drawObject.Tool = DrawTools.Line;
   this.started = false;
 
   this.mousedown = function (ev) {
-    drawObject.currentState = DrawState.Started;
+    drawObject.DrawState = DrawStates.Started;
     drawObject.StartX = ev._x;
     drawObject.StartY = ev._y;
     tool.started = true;
@@ -107,7 +107,7 @@ tools.line = function () {
     if (!tool.started) {
       return;
     }
-    drawObject.currentState = DrawState.Inprogress;
+    drawObject.DrawState = DrawStates.Inprogress;
     drawObject.CurrentX = ev._x;
     drawObject.CurrentY = ev._y;
     DrawIt(drawObject, true);
@@ -115,7 +115,7 @@ tools.line = function () {
 
   this.mouseup = function (ev) {
     if (tool.started) {
-      drawObject.currentState = DrawState.Completed;
+      drawObject.DrawState = DrawStates.Completed;
       drawObject.CurrentX = ev._x;
       drawObject.CurrentY = ev._y;
       DrawIt(drawObject, true);
@@ -128,12 +128,12 @@ tools.text = function () {
   var tool = this;
   this.started = false;
   var drawObject = new DrawObject();
-  drawObject.Tool = DrawTool.Text;
+  drawObject.Tool = DrawTools.Text;
   this.mousedown = function (ev) {
 
     if (!tool.started) {
       tool.started = true;
-      drawObject.currentState = DrawState.Started;
+      drawObject.DrawState = DrawStates.Started;
       drawObject.StartX = ev._x;
       drawObject.StartY = ev._y;
       var text_to_add = prompt('Enter the text:', ' ', 'Add Text');
@@ -170,10 +170,10 @@ tools.erase = function (ev) {
   var tool = this;
   this.started = false;
   var drawObject = new DrawObject();
-  drawObject.Tool = DrawTool.Erase;
+  drawObject.Tool = DrawTools.Erase;
   this.mousedown = function (ev) {
     tool.started = true;
-    drawObject.currentState = DrawState.Started;
+    drawObject.DrawState = DrawStates.Started;
     drawObject.StartX = ev._x;
     drawObject.StartY = ev._y;
     DrawIt(drawObject, true);
@@ -182,13 +182,13 @@ tools.erase = function (ev) {
     if (!tool.started) {
       return;
     }
-    drawObject.currentState = DrawState.Inprogress;
+    drawObject.DrawState = DrawStates.Inprogress;
     drawObject.CurrentX = ev._x;
     drawObject.CurrentY = ev._y;
     DrawIt(drawObject, true);
   };
   this.mouseup = function (ev) {
-    drawObject.currentState = DrawState.Completed;
+    drawObject.DrawState = DrawStates.Completed;
     drawObject.CurrentX = ev._x;
     drawObject.CurrentY = ev._y;
     DrawIt(drawObject, true);

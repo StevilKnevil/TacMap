@@ -5,13 +5,13 @@
 // The layers all get baked into the final 'whiteboard' canvas (canvaso - canvasOutput? need renaming) which is transformed correctly depending on user view params.
 
 
-var DrawState =
+var DrawStates =
 {
   Started: 0,
   Inprogress: 1,
   Completed: 2
 }
-var DrawTool =
+var DrawTools =
 {
   Pencil: 0,
   Line: 1,
@@ -47,10 +47,10 @@ var panTool = new tools.pan();
 function DrawIt(drawObject, syncServer) {
 
 
-  if (drawObject.Tool == DrawTool.Line) {
-    switch (drawObject.currentState) {
-      case DrawState.Inprogress:
-      case DrawState.Completed:
+  if (drawObject.Tool == DrawTools.Line) {
+    switch (drawObject.DrawState) {
+      case DrawStates.Inprogress:
+      case DrawStates.Completed:
         // TODO: when completed, draw this to the current layer context and clear the 'working' or 'tool' context
         toolContext.clearRect(0, 0, toolCanvas.width, toolCanvas.height);
         toolContext.beginPath();
@@ -58,32 +58,32 @@ function DrawIt(drawObject, syncServer) {
         toolContext.lineTo(drawObject.CurrentX, drawObject.CurrentY);
         toolContext.stroke();
         toolContext.closePath();
-        if (drawObject.currentState == DrawState.Completed) {
+        if (drawObject.DrawState == DrawStates.Completed) {
           updatecanvas();
         }
         break;
     }
   }
-  else if (drawObject.Tool == DrawTool.Pencil) {
+  else if (drawObject.Tool == DrawTools.Pencil) {
 
-    switch (drawObject.currentState) {
-      case DrawState.Started:
+    switch (drawObject.DrawState) {
+      case DrawStates.Started:
         toolContext.beginPath();
         toolContext.moveTo(drawObject.StartX, drawObject.StartY);
         break;
-      case DrawState.Inprogress:
-      case DrawState.Completed:
+      case DrawStates.Inprogress:
+      case DrawStates.Completed:
         toolContext.lineTo(drawObject.CurrentX, drawObject.CurrentY);
         toolContext.stroke();
-        if (drawObject.currentState == DrawState.Completed) {
+        if (drawObject.DrawState == DrawStates.Completed) {
           updatecanvas();
         }
         break;
     }
   }
-  else if (drawObject.Tool == DrawTool.Text) {
-    switch (drawObject.currentState) {
-      case DrawState.Started:
+  else if (drawObject.Tool == DrawTools.Text) {
+    switch (drawObject.DrawState) {
+      case DrawStates.Started:
         toolContext.clearRect(0, 0, toolCanvas.width, toolCanvas.height);
         clear(toolContext);
         toolContext.save();
@@ -100,19 +100,19 @@ function DrawIt(drawObject, syncServer) {
 
 
   }
-  else if (drawObject.Tool == DrawTool.Erase) {
+  else if (drawObject.Tool == DrawTools.Erase) {
 
-    switch (drawObject.currentState) {
+    switch (drawObject.DrawState) {
 
-      case DrawState.Started:
+      case DrawStates.Started:
         toolContext.fillStyle = "#FFFFFF";
         toolContext.fillRect(drawObject.StartX, drawObject.StartY, 10, 10);
         toolContext.restore();
         updatecanvas();
         //toolContext.clearRect(drawObject.StartX, drawObject.StartY, 5, 5);
         break;
-      case DrawState.Inprogress:
-      case DrawState.Completed:
+      case DrawStates.Inprogress:
+      case DrawStates.Completed:
         toolContext.fillStyle = "#FFFFFF";
         toolContext.fillRect(drawObject.CurrentX, drawObject.CurrentY, 10, 10);
         toolContext.restore();
@@ -123,11 +123,11 @@ function DrawIt(drawObject, syncServer) {
 
 
   }
-  else if (drawObject.Tool == DrawTool.Rect) {
+  else if (drawObject.Tool == DrawTools.Rect) {
 
-    switch (drawObject.currentState) {
-      case DrawState.Inprogress:
-      case DrawState.Completed:
+    switch (drawObject.DrawState) {
+      case DrawStates.Inprogress:
+      case DrawStates.Completed:
         var x = Math.min(drawObject.CurrentX, drawObject.StartX),
                 y = Math.min(drawObject.CurrentY, drawObject.StartY),
                 w = Math.abs(drawObject.CurrentX - drawObject.StartX),
@@ -140,7 +140,7 @@ function DrawIt(drawObject, syncServer) {
         }
 
         toolContext.strokeRect(x, y, w, h);
-        if (drawObject.currentState == DrawState.Completed) {
+        if (drawObject.DrawState == DrawStates.Completed) {
           updatecanvas();
         }
         break;
@@ -150,7 +150,7 @@ function DrawIt(drawObject, syncServer) {
 
   // Send the current state of the tool to the server so all clients can see it, but don't do it for pencil as that should only get sent on completion to avoid message spam
   // TODO: Only bother sending on completion for all tools?
-  if (syncServer && drawObject.Tool != DrawTool.Pencil) {
+  if (syncServer && drawObject.Tool != DrawTools.Pencil) {
 
     drawObjectsCollection = [];
     drawObjectsCollection.push(drawObject);
@@ -557,8 +557,8 @@ function JoinHub() {
           var drawObjectCollection = jQuery.parseJSON(message)
           for (var i = 0; i < drawObjectCollection.length; i++) {
             DrawIt(drawObjectCollection[i], false);
-            if (drawObjectCollection[i].currentState) {
-              if (drawObjectCollection[i].currentState == DrawState.Completed) {
+            if (drawObjectCollection[i].DrawState) {
+              if (drawObjectCollection[i].DrawState == DrawStates.Completed) {
                 $("#divStatus").html("<i>" + name + " drawing completing...</i>")
                 $("#divStatus").html("");
               }
