@@ -6,7 +6,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <TimeStampOfAssociatedLegacyPublishXmlFile>2013-01-05T18:46:46.2610000+00:00</TimeStampOfAssociatedLegacyPublishXmlFile>
-    <_PublishTargetUrl>C:\CodeProject\OnlineWhiteBoard_4\output</_PublishTargetUrl>
+    <_PublishTargetUrl></_PublishTargetUrl>
   </PropertyGroup>
   <ItemGroup>
     <File Include="bin/Antlr3.Runtime.dll">
@@ -30,7 +30,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
     <File Include="bin/Newtonsoft.Json.dll">
       <publishTime>11/20/2012 22:45:56</publishTime>
     </File>
-    <File Include="bin/OnlineWhiteBoard_4.dll">
+    <File Include="bin/TacMap.dll">
       <publishTime>09/18/2017 11:44:20</publishTime>
     </File>
     <File Include="bin/Owin.dll">

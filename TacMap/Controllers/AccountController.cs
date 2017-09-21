@@ -4,9 +4,9 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
-using OnlineWhiteBoard_4.Models;
+using TacMap.Models;
 
-namespace OnlineWhiteBoard_4.Controllers
+namespace TacMap.Controllers
 {
 
     [Authorize]

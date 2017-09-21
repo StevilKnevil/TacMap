@@ -4,9 +4,9 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using Microsoft.AspNet.SignalR;
-using OnlineWhiteBoard_4.SignalR;
+using TacMap.SignalR;
 
-namespace OnlineWhiteBoard_4.Controllers
+namespace TacMap.Controllers
 {
     public class HomeController : Controller
     {
@@ -16,8 +16,6 @@ namespace OnlineWhiteBoard_4.Controllers
             ViewData["IsNewGroup"] = false;
             if (string.IsNullOrWhiteSpace(p))
             {
-
-
                 Guid g = Guid.NewGuid();
                 p = Convert.ToBase64String(g.ToByteArray());
                 p = p.Replace("=", "");
@@ -32,7 +30,6 @@ namespace OnlineWhiteBoard_4.Controllers
 
             ViewData["GroupName"] = p;
             ViewBag.GroupName = p;
-           
             
             return View();
         }

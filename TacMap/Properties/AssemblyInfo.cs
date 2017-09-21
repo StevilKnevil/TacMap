@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("OnlineWhiteBoard_4")]
+[assembly: AssemblyTitle("TacMap")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("KPMG")]
-[assembly: AssemblyProduct("OnlineWhiteBoard_4")]
-[assembly: AssemblyCopyright("Copyright © KPMG 2012")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("TacMap")]
+[assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

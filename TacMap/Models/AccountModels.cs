@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Web.Mvc;
 using System.Web.Security;
 
-namespace OnlineWhiteBoard_4.Models
+namespace TacMap.Models
 {
 
     public class ChangePasswordModel

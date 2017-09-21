@@ -1,7 +1,7 @@
 ﻿using System.Web;
 using System.Web.Mvc;
 
-namespace OnlineWhiteBoard_4
+namespace TacMap
 {
     public class FilterConfig
     {
