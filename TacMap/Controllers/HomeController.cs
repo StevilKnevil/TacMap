@@ -11,13 +11,16 @@ namespace TacMap.Controllers
     public class HomeController : Controller
     {
 
-        public ActionResult Index(string p )
+        public ActionResult Index(string p)
         {
             ViewData["IsNewGroup"] = false;
             if (string.IsNullOrWhiteSpace(p))
             {
                 Guid g = Guid.NewGuid();
                 p = Convert.ToBase64String(g.ToByteArray());
+#if DEBUG
+        p = "testgroup";
+#endif
                 p = p.Replace("=", "");
                 p = p.Replace("+", "");
                 ViewData["IsNewGroup"] = true;
