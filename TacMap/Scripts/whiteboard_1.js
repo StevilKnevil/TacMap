@@ -2,7 +2,7 @@
 
 // TODO: Clean up cruft
 // There is a 'toolCanvas' which gets cleared and redrawn as the user drags around with the mouse. when the drawing is complete this then gets baked into the canvas fo rthe current layer
-// The layers all get baked into the final 'whiteboard' canvas (canvaso - canvasOutput? need renaming) which is transformed correctly depending on user view params.
+// The layers all get baked into the final 'whiteboard' canvas (canvaso - canvasoutput? need renaming) which is transformed correctly depending on user view params.
 
 
 var DrawStates =
@@ -59,7 +59,7 @@ function DrawIt(drawObject, syncServer) {
         toolContext.stroke();
         toolContext.closePath();
         if (drawObject.DrawState == DrawStates.Completed) {
-          updatecanvas();
+          updateLayer();
         }
         break;
     }
@@ -76,7 +76,7 @@ function DrawIt(drawObject, syncServer) {
         toolContext.lineTo(drawObject.CurrentX, drawObject.CurrentY);
         toolContext.stroke();
         if (drawObject.DrawState == DrawStates.Completed) {
-          updatecanvas();
+          updateLayer();
         }
         break;
     }
@@ -93,7 +93,7 @@ function DrawIt(drawObject, syncServer) {
         toolContext.textBaseline = "bottom";
         toolContext.fillText(drawObject.Text, drawObject.StartX, drawObject.StartY);
         toolContext.restore();
-        updatecanvas();
+        updateLayer();
         break;
 
     }
@@ -108,7 +108,7 @@ function DrawIt(drawObject, syncServer) {
         toolContext.fillStyle = "#FFFFFF";
         toolContext.fillRect(drawObject.StartX, drawObject.StartY, 10, 10);
         toolContext.restore();
-        updatecanvas();
+        updateLayer();
         //toolContext.clearRect(drawObject.StartX, drawObject.StartY, 5, 5);
         break;
       case DrawStates.Inprogress:
@@ -116,7 +116,7 @@ function DrawIt(drawObject, syncServer) {
         toolContext.fillStyle = "#FFFFFF";
         toolContext.fillRect(drawObject.CurrentX, drawObject.CurrentY, 10, 10);
         toolContext.restore();
-        updatecanvas();
+        updateLayer();
         // toolContext.clearRect(drawObject.CurrentX, drawObject.CurrentY, 5, 5);
         break;
     }
@@ -141,7 +141,7 @@ function DrawIt(drawObject, syncServer) {
 
         toolContext.strokeRect(x, y, w, h);
         if (drawObject.DrawState == DrawStates.Completed) {
-          updatecanvas();
+          updateLayer();
         }
         break;
     }
@@ -230,7 +230,6 @@ $(document).ready(function () {
 
     // Add the temporary canvas.
     var container = canvaso.parentNode;
-
 
     toolCanvas = document.createElement('canvas');
     if (!toolCanvas) {
@@ -371,11 +370,19 @@ function getMouse(e) {
   my = e._y;
 }
 
+function updateLayer(layerIndex) {
+
+  // Bake the drawing into the layer and clear the tool context
+  compositingContext.drawImage(toolCanvas, 0, 0, toolCanvas.width, toolCanvas.height); // TODO: Stretch layers to match background
+
+  // update the main output canvas
+  updateConavas()
+}
+
 
 function updatecanvas() {
-  // TODO: background image size
-  compositingContext.clearRect(0, 0, compositingCanvas.width, compositingCanvas.height);
 
+  /*
   // Draw a background
   var img = new Image;
   img.onload = function()
@@ -384,15 +391,15 @@ function updatecanvas() {
   }
   img.src = "/images/pencil_dim.png";
   // TODO make sure that the images is loaded, ideally use the onLoad() function for the document element (hidden?)
-  var w = img.width;
-  var h = img.height;
-  compositingContext.drawImage(img, 0, 0, w, h);
+  compositingContext.drawImage(img, 0, 0, img.width, img.height);
 
   // Shouldn't do anything with the tool context here, as this is an overlay that will be baked in when tool is finished.
-  compositingContext.drawImage(toolCanvas, 0, 0, toolCanvas.width, toolCanvas.height); // TODO: Stretch layers to match background
+  //compositingContext.drawImage(toolCanvas, 0, 0, toolCanvas.width, toolCanvas.height); // TODO: Stretch layers to match background
 
+  // Debug: draw the pan position
   compositingContext.fillText(panTool.panX, 10, 10); // TODO: Stretch layers to match background
   compositingContext.fillText(panTool.panY, 30, 10); // TODO: Stretch layers to match background
+  */
 
   // copy the generated content (with tiling)
   contexto.clearRect(-canvaso.width, -canvaso.height, canvaso.width * 3, canvaso.height * 3);
