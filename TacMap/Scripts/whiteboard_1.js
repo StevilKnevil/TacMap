@@ -370,16 +370,20 @@ function getMouse(e) {
   my = e._y;
 }
 
+// Add the current contents of the tool canvas to the specified layer
 function updateLayer(layerIndex) {
 
   // Bake the drawing into the layer and clear the tool context
   compositingContext.drawImage(toolCanvas, 0, 0, toolCanvas.width, toolCanvas.height); // TODO: Stretch layers to match background
 
+  // And clear the tool context now we have added it to the layer
+  toolContext.clearRect(0, 0, toolCanvas.width, toolCanvas.height);
+
   // update the main output canvas
-  updateConavas()
+  updatecanvas()
 }
 
-
+// Composite the layers into the output image and tile, pan and zoom it
 function updatecanvas() {
 
   /*
@@ -415,10 +419,6 @@ function updatecanvas() {
   contexto.drawImage(compositingCanvas, -canvaso.width, canvaso.height);
   contexto.drawImage(compositingCanvas, 0, canvaso.height);
   contexto.drawImage(compositingCanvas, canvaso.width, canvaso.height);
-
-  // Clear the temporary canvas
-  contexto.drawImage(compositingCanvas, 0, 0); // TODO: Stretch layers to match background
-  toolContext.clearRect(0, 0, toolCanvas.width, toolCanvas.height);
 }
 
 
