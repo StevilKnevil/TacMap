@@ -374,7 +374,21 @@ function getMouse(e) {
 function updateLayer(layerIndex) {
 
   // Bake the drawing into the layer and clear the tool context
-  compositingContext.drawImage(toolCanvas, 0, 0, toolCanvas.width, toolCanvas.height); // TODO: Stretch layers to match background
+  compositingContext.rect(0, 0, compositingCanvas.width, compositingCanvas.height);
+  compositingContext.clip();
+  
+  // Composite into the layer (tiled)
+  // TODO: Handle zoom
+  compositingContext.setTransform(1, 0, 0, 1, -panTool.panX, -panTool.panY);
+  compositingContext.drawImage(toolCanvas, -toolCanvas.width, -toolCanvas.height);
+  compositingContext.drawImage(toolCanvas, -toolCanvas.width, 0);
+  compositingContext.drawImage(toolCanvas, -toolCanvas.width, toolCanvas.height);
+  compositingContext.drawImage(toolCanvas, 0, -toolCanvas.height);
+  compositingContext.drawImage(toolCanvas, 0, 0);
+  compositingContext.drawImage(toolCanvas, 0, toolCanvas.height);
+  compositingContext.drawImage(toolCanvas, toolCanvas.width, -toolCanvas.height);
+  compositingContext.drawImage(toolCanvas, toolCanvas.width, 0);
+  compositingContext.drawImage(toolCanvas, toolCanvas.width, toolCanvas.height);
 
   // And clear the tool context now we have added it to the layer
   toolContext.clearRect(0, 0, toolCanvas.width, toolCanvas.height);
@@ -409,7 +423,6 @@ function updatecanvas() {
   contexto.clearRect(-canvaso.width, -canvaso.height, canvaso.width * 3, canvaso.height * 3);
   contexto.setTransform(1, 0, 0, 1, panTool.panX, panTool.panY);
 
-  contexto.drawImage(compositingCanvas, 0, 0);
   contexto.drawImage(compositingCanvas, -canvaso.width, -canvaso.height);
   contexto.drawImage(compositingCanvas, 0, -canvaso.height);
   contexto.drawImage(compositingCanvas, canvaso.width, -canvaso.height);
