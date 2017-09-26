@@ -92,7 +92,35 @@ namespace TacMap.SignalR
 
     public void JoinGroup(string groupName)
     {
+      System.Text.RegularExpressions.Regex r = new System.Text.RegularExpressions.Regex("^[a-zA-Z0-9]*$");
+      if (!r.IsMatch(groupName))
+      {
+        throw new ArgumentException("Only alpha-numeirc characters allowed");
+      }
+
       Groups.Add(Context.ConnectionId, groupName);
+
+      /*
+      // send all the data so far.
+      SqlConnection sqlCon = EnsureDBConnection(groupName);
+      sqlCon.Open();
+      var insertCommand = "INSERT INTO {0} (Tool, StartX, StartY, EndX, EndY) VALUES(@tool, @startX, @startY, @endX, @endY)";
+      using (var cmd = new SqlCommand(String.Format(insertCommand, groupName), sqlCon))
+      {
+        cmd.Parameters.AddWithValue("@tool", di.Tool);
+        cmd.Parameters.AddWithValue("@startX", di.StartX);
+        cmd.Parameters.AddWithValue("@startY", di.StartY);
+        cmd.Parameters.AddWithValue("@endX", di.CurrentX);
+        cmd.Parameters.AddWithValue("@endY", di.CurrentY);
+        cmd.ExecuteNonQuery();
+      }
+      sqlCon.Close();
+
+      foreach (DrawItem di in drawItems)
+      {
+        Clients.Caller.HandleDraw(drawObject, sessionId, name);
+      }
+      */
     }
     public void JoinChat(string name, string groupName)
     {
@@ -126,7 +154,6 @@ namespace TacMap.SignalR
         }
         sqlCon.Close();
       }
-
       Clients.Group(groupName).HandleDraw(drawObject, sessionId, name);
     }
 
