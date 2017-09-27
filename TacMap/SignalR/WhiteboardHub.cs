@@ -98,29 +98,38 @@ namespace TacMap.SignalR
         throw new ArgumentException("Only alpha-numeirc characters allowed");
       }
 
+      // Add the connection
       Groups.Add(Context.ConnectionId, groupName);
-
-      /*
-      // send all the data so far.
-      SqlConnection sqlCon = EnsureDBConnection(groupName);
-      sqlCon.Open();
-      var insertCommand = "INSERT INTO {0} (Tool, StartX, StartY, EndX, EndY) VALUES(@tool, @startX, @startY, @endX, @endY)";
-      using (var cmd = new SqlCommand(String.Format(insertCommand, groupName), sqlCon))
+      
+      // Send all the history of drawn objects to the new client to make sure it's up to date.
+      List<Backend.DrawItem> drawItems = new List<Backend.DrawItem>();
+      using (var sqlConnection = EnsureDBConnection(groupName))
       {
-        cmd.Parameters.AddWithValue("@tool", di.Tool);
-        cmd.Parameters.AddWithValue("@startX", di.StartX);
-        cmd.Parameters.AddWithValue("@startY", di.StartY);
-        cmd.Parameters.AddWithValue("@endX", di.CurrentX);
-        cmd.Parameters.AddWithValue("@endY", di.CurrentY);
-        cmd.ExecuteNonQuery();
-      }
-      sqlCon.Close();
+        sqlConnection.Open();
+        string cmdString = "SELECT * FROM {0};";
+        using (var sqlCommand = new SqlCommand(String.Format(cmdString, groupName), sqlConnection))
+        {
+          SqlDataReader reader = sqlCommand.ExecuteReader();
+          while (reader.Read())
+          {
+            Backend.DrawItem di = new Backend.DrawItem();
+            di.Tool = (Backend.DrawItem.Tools)Convert.ToInt32(reader["Tool"]);
+            di.StartX = Convert.ToInt32(reader["StartX"]);
+            di.StartY = Convert.ToInt32(reader["StartY"]);
+            di.CurrentX = Convert.ToInt32(reader["EndX"]);
+            di.CurrentY = Convert.ToInt32(reader["EndY"]);
 
-      foreach (DrawItem di in drawItems)
-      {
-        Clients.Caller.HandleDraw(drawObject, sessionId, name);
+            drawItems.Add(di);
+          }
+          // TODO: Close the reader
+        }
+        sqlConnection.Close();
+
+        foreach (var di in drawItems)
+        {
+          Clients.Caller.HandleDraw(di);
+        }
       }
-      */
     }
     public void JoinChat(string name, string groupName)
     {
