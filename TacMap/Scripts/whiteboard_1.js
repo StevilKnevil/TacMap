@@ -374,8 +374,8 @@ function getMouse(e) {
 function updateLayer(layerIndex) {
 
   // Bake the drawing into the layer and clear the tool context
-  compositingContext.rect(0, 0, compositingCanvas.width, compositingCanvas.height);
-  compositingContext.clip();
+  //compositingContext.rect(0, 0, compositingCanvas.width, compositingCanvas.height);
+  //compositingContext.clip();
   
   // Composite into the layer (tiled)
   // TODO: Handle zoom
@@ -570,6 +570,7 @@ function JoinHub() {
       whiteboardHub = $.connection.whiteboardHub;
       whiteboardHub.client.handleDraw = function (message, sessnId, name) {
         var sessId = $('#sessinId').val();
+        // Only draw things from other sessions, we handle our own drawing locally
         if (sessId != sessnId) {
           $("#divStatus").html("");
 
