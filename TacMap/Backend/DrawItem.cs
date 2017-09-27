@@ -32,9 +32,14 @@ namespace TacMap.Backend
     public int CurrentX { get; set; }
     public int CurrentY { get; set; }
 
-    public static DrawItem FromJson(string json)
+    public static IList<DrawItem> FromJson(string json)
     {
-      return JsonConvert.DeserializeObject<List<DrawItem>>(json)[0];
+      return JsonConvert.DeserializeObject<List<DrawItem>>(json);
+    }
+
+    public static string ToJson(IList<DrawItem> drawItems)
+    {
+      return JsonConvert.SerializeObject(drawItems);
     }
   }
 }

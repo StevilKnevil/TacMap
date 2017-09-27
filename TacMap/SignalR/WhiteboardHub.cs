@@ -118,6 +118,7 @@ namespace TacMap.SignalR
             di.StartY = Convert.ToInt32(reader["StartY"]);
             di.CurrentX = Convert.ToInt32(reader["EndX"]);
             di.CurrentY = Convert.ToInt32(reader["EndY"]);
+            di.DrawState = Backend.DrawItem.DrawStates.Completed; // all data ion teh DB is completed (i.e. state 2)
 
             drawItems.Add(di);
           }
@@ -125,10 +126,9 @@ namespace TacMap.SignalR
         }
         sqlConnection.Close();
 
-        foreach (var di in drawItems)
-        {
-          Clients.Caller.HandleDraw(di);
-        }
+        string json = Backend.DrawItem.ToJson(drawItems);
+        // Consider having a seperate function for server historic data calls?
+        Clients.Caller.HandleDraw(json, "<no session>", "Server");
       }
     }
     public void JoinChat(string name, string groupName)
@@ -145,24 +145,28 @@ namespace TacMap.SignalR
         throw new ArgumentException("Only alpha-numeirc characters allowed");
       }
 
-      Backend.DrawItem di = Backend.DrawItem.FromJson(drawObject);
-
-      if (di.DrawState == Backend.DrawItem.DrawStates.Completed)
+      IList<Backend.DrawItem> diList = Backend.DrawItem.FromJson(drawObject);
+      foreach(var di in diList)
       {
-        SqlConnection sqlCon = EnsureDBConnection(groupName);
-        sqlCon.Open();
-        var insertCommand = "INSERT INTO {0} (Tool, StartX, StartY, EndX, EndY) VALUES(@tool, @startX, @startY, @endX, @endY)";
-        using (var cmd = new SqlCommand(String.Format(insertCommand, groupName), sqlCon))
+        if (di.DrawState == Backend.DrawItem.DrawStates.Completed)
         {
-          cmd.Parameters.AddWithValue("@tool", di.Tool);
-          cmd.Parameters.AddWithValue("@startX", di.StartX);
-          cmd.Parameters.AddWithValue("@startY", di.StartY);
-          cmd.Parameters.AddWithValue("@endX", di.CurrentX);
-          cmd.Parameters.AddWithValue("@endY", di.CurrentY);
-          cmd.ExecuteNonQuery();
+          SqlConnection sqlCon = EnsureDBConnection(groupName);
+          sqlCon.Open();
+          var insertCommand = "INSERT INTO {0} (Tool, StartX, StartY, EndX, EndY) VALUES(@tool, @startX, @startY, @endX, @endY)";
+          using (var cmd = new SqlCommand(String.Format(insertCommand, groupName), sqlCon))
+          {
+            cmd.Parameters.AddWithValue("@tool", di.Tool);
+            cmd.Parameters.AddWithValue("@startX", di.StartX);
+            cmd.Parameters.AddWithValue("@startY", di.StartY);
+            cmd.Parameters.AddWithValue("@endX", di.CurrentX);
+            cmd.Parameters.AddWithValue("@endY", di.CurrentY);
+            cmd.ExecuteNonQuery();
+          }
+          sqlCon.Close();
         }
-        sqlCon.Close();
       }
+
+      // Pass the string onto other clients
       Clients.Group(groupName).HandleDraw(drawObject, sessionId, name);
     }
 
