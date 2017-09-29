@@ -85,7 +85,6 @@ function DrawIt(drawObject, syncServer) {
     switch (drawObject.DrawState) {
       case DrawStates.Started:
         toolContext.clearRect(0, 0, toolCanvas.width, toolCanvas.height);
-        clear(toolContext);
         toolContext.save();
         toolContext.font = 'normal 16px Calibri';
         toolContext.fillStyle = "blue";
@@ -160,40 +159,12 @@ function DrawIt(drawObject, syncServer) {
 }
 
 function toggleBG1() {
-
   setTimeout(function () { $('#divShare').css("background-color", "silver"); toggleBG2() }, 800);
 }
 function toggleBG2() {
   setTimeout(function () { $('#divShare').css("background-color", "#C8C8C8"); toggleBG1() }, 800);
+}
 
-}
-function DrawObject() {
-}
-function UpdatePlayback(drawObject) {
-  if (drawPlaybackCollection.length > 1000) {
-    drawPlaybackCollection = [];
-    alert("Playback cache is cleared due to more than 1000 items");
-  }
-  drawPlaybackCollection.push(drawObject);
-}
-function Clear() {
-  canvaso.hieght = toolCanvas.hieght;
-  canvaso.width = toolCanvas.width;
-}
-function Playback() {
-  if (drawPlaybackCollection.length == 0) {
-    alert("No drawing to play"); return;
-  }
-  canvaso.hieght = toolCanvas.hieght;
-  canvaso.width = toolCanvas.width;
-
-
-  for (var i = 0; i < drawPlaybackCollection.length; i++) {
-    var drawObject = drawPlaybackCollection[i];
-    setTimeout(function () { DrawIt(drawObject, false, false); }, 3000);
-  }
-  drawPlaybackCollection = [];
-}
 $(document).ready(function () {
 
   JoinHub();
@@ -278,10 +249,6 @@ $(document).ready(function () {
 
 });
 
-function clear(c) {
-  c.clearRect(0, 0, WIDTH, HEIGHT);
-}
-
 function ev_canvas(ev) {
   var iebody = (document.compatMode && document.compatMode != "BackCompat") ? document.documentElement : document.body
 
@@ -344,30 +311,6 @@ function ev_canvas(ev) {
   catch (err) {
     alert(err.message);
   }
-}
-
-function getMouse(e) {
-  var element = canvaso, offsetX = 0, offsetY = 0;
-
-  if (element.offsetParent) {
-    do {
-      offsetX += element.offsetLeft;
-      offsetY += element.offsetTop;
-    } while ((element = element.offsetParent));
-  }
-
-  // Add padding and border style widths to offset
-  offsetX += stylePaddingLeft;
-  offsetY += stylePaddingTop;
-
-  offsetX += styleBorderLeft;
-  offsetY += styleBorderTop;
-
-  mx = e.pageX - offsetX;
-  my = e.pageY - offsetY;
-
-  mx = e._x;
-  my = e._y;
 }
 
 // Add the current contents of the tool canvas to the specified layer
@@ -479,80 +422,6 @@ function ChangeIcons(toolName) {
   else
     $("#imgtext").attr({ src: "/images/text_dim.png", border: "0px" });
 }
-
-function fireEvent(element, event) {
-  var evt;
-  if (document.createEventObject) {
-    // dispatch for IE
-    evt = document.createEventObject();
-    return element.fireEvent('on' + event, evt)
-  }
-  else {
-    // dispatch for firefox + others
-    evt = document.createEvent("HTMLEvents");
-    evt.initEvent(event, true, true); // event type,bubbling,cancelable
-    return !element.dispatchEvent(evt);
-  }
-}
-
-function UpdateCanvas() {
-  var file_UploadImg = document.getElementById("fileUploadImg");
-  LoadImageIntoCanvas(URL.createObjectURL(file_UploadImg.files[0]));
-}
-
-function LoadImageIntoCanvas(bgImageUrl) {
-
-  var image_View = document.getElementById("imageView");
-  var ctx = image_View.getContext("2d");
-
-  var img = new Image();
-  img.onload = function () {
-    image_View.width = img.width;
-    image_View.height = img.height;
-    WIDTH = img.width;
-    HEIGHT = img.height;
-    ctx.clearRect(0, 0, image_View.width, image_View.height);
-    ctx.drawImage(img, 1, 1, img.width, img.height);
-  }
-  img.src = bgImageUrl;
-
-  // Activate the default tool.
-  SelectTool(tool_default);
-}
-
-function getAbsolutePosition(e) {
-  var curleft = curtop = 0;
-  if (e.offsetParent) {
-    curleft = e.offsetLeft;
-    curtop = e.offsetTop;
-    while (e = e.offsetParent) {
-      curleft += e.offsetLeft;
-      curtop += e.offsetTop;
-    }
-  }
-  return [curleft, curtop];
-}
-
-function SaveDrawings() {
-
-
-  var img = canvaso.toDataURL("image/png");
-  WindowObject = window.open('', "PrintPaintBrush", "toolbars=no,scrollbars=yes,status=no,resizable=no");
-  WindowObject.document.open();
-  WindowObject.document.writeln('<img src="' + img + '"/>');
-  WindowObject.document.close();
-  WindowObject.focus();
-
-}
-
-
-
-
-
-
-
-var drawobjects = [];
-
 
 function JoinHub() {
 

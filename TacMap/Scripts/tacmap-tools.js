@@ -1,4 +1,8 @@
-﻿var tools = {};
+﻿
+function DrawObject() {
+}
+
+var tools = {};
 
 tools.pencil = function () {
   var tool = this;
