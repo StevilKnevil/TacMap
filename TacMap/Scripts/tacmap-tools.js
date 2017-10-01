@@ -166,7 +166,7 @@ tools.text = function () {
 
       DrawIt(drawObject, true);
       tool.started = false;
-      renderer.updateLayer();
+      return true;
     }
   };
 
@@ -180,7 +180,7 @@ tools.text = function () {
     if (tool.started) {
       tool.mousemove(ev);
       tool.started = false;
-      renderer.updateLayer();
+      return true;
     }
   };
 }
@@ -244,8 +244,9 @@ tools.pan = function (ev) {
     if (tool.panY < 0)
       tool.panY += backgroundCanvas.height;
 
-    renderer.updateLayer();
+    return true;
   };
+
   this.mouseup = function (ev) {
     tool.started = false;
   }
@@ -267,7 +268,7 @@ tools.zoom = function (ev) {
     this.zoom = Math.min(maxZoom, Math.max(minZoom, this.zoom));
     // Adjust the pan so that we zoom around centre of view
 
-    renderer.updateLayer();
+    return true;
   };
 };
 
