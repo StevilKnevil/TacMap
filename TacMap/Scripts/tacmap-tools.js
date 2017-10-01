@@ -1,4 +1,20 @@
-﻿
+﻿var DrawStates =
+{
+  Started: 0,
+  Inprogress: 1,
+  Completed: 2
+}
+
+var DrawTools =
+{
+  Pencil: 0,
+  Line: 1,
+  Text: 2,
+  Rect: 3,
+  Oval: 4,
+  Erase: 5,
+}
+
 function DrawObject() {
 }
 
