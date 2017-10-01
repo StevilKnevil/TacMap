@@ -4,17 +4,12 @@
 // There is a 'toolCanvas' which gets cleared and redrawn as the user drags around with the mouse. when the drawing is complete this then gets baked into the canvas fo rthe current layer
 // The layers all get baked into the final 'whiteboard' canvas (canvaso - canvasoutput? need renaming) which is transformed correctly depending on user view params.
 
-
-
 var whiteboardHub;
 var tool_default = 'line';
-var toolCanvas, toolContext, canvaso, contexto, compositingCanvas, compositingContext;
-var backgroundCanvas;
 
 var tool;
 
 var drawObjectsCollection = [];
-
 
 function DrawIt(drawObject, syncServer) {
 
@@ -30,7 +25,7 @@ function DrawIt(drawObject, syncServer) {
         toolContext.stroke();
         toolContext.closePath();
         if (drawObject.DrawState == DrawStates.Completed) {
-          updateLayer();
+          renderer.updateLayer();
         }
         break;
     }
@@ -47,7 +42,7 @@ function DrawIt(drawObject, syncServer) {
         toolContext.lineTo(drawObject.CurrentX, drawObject.CurrentY);
         toolContext.stroke();
         if (drawObject.DrawState == DrawStates.Completed) {
-          updateLayer();
+          renderer.updateLayer();
         }
         break;
     }
@@ -63,7 +58,7 @@ function DrawIt(drawObject, syncServer) {
         toolContext.textBaseline = "bottom";
         toolContext.fillText(drawObject.Text, drawObject.StartX, drawObject.StartY);
         toolContext.restore();
-        updateLayer();
+        renderer.updateLayer();
         break;
 
     }
@@ -78,7 +73,7 @@ function DrawIt(drawObject, syncServer) {
         toolContext.fillStyle = "#FFFFFF";
         toolContext.fillRect(drawObject.StartX, drawObject.StartY, 10, 10);
         toolContext.restore();
-        updateLayer();
+        renderer.updateLayer();
         //toolContext.clearRect(drawObject.StartX, drawObject.StartY, 5, 5);
         break;
       case DrawStates.Inprogress:
@@ -86,7 +81,7 @@ function DrawIt(drawObject, syncServer) {
         toolContext.fillStyle = "#FFFFFF";
         toolContext.fillRect(drawObject.CurrentX, drawObject.CurrentY, 10, 10);
         toolContext.restore();
-        updateLayer();
+        renderer.updateLayer();
         // toolContext.clearRect(drawObject.CurrentX, drawObject.CurrentY, 5, 5);
         break;
     }
@@ -111,12 +106,20 @@ function DrawIt(drawObject, syncServer) {
 
         toolContext.strokeRect(x, y, w, h);
         if (drawObject.DrawState == DrawStates.Completed) {
-          updateLayer();
+          renderer.updateLayer();
         }
         break;
     }
 
   }
+
+  /*
+  else if (drawObject.Tool == DrawTools.Pan) {
+    toolContext.clearRect(0, 0, toolCanvas.width, toolCanvas.height);
+    toolContext.fillText(panTool.panX, 10, 10); // TODO: Stretch layers to match background
+    toolContext.fillText(panTool.panY, 30, 10); // TODO: Stretch layers to match background
+  }
+  */
 
   // Send the current state of the tool to the server so all clients can see it, but don't do it for pencil as that should only get sent on completion to avoid message spam
   // TODO: Only bother sending on completion for all tools?
@@ -146,7 +149,10 @@ $(document).ready(function () {
   bgImg.onload = function ()
   {
     // Extract the background image and store it.
-    initRendering(bgImg);
+    renderer = new Renderer(bgImg);
+    // Activate the default tool.
+    SelectTool(tool_default);
+    toggleBG1();
   }
   bgImg.src = "/Images/backgrounds/testgroup/background.jpg"
 
@@ -160,87 +166,7 @@ $(document).ready(function () {
   });
 });
 
-function initRendering(bgImg)
-{
-  try {
 
-    // Set up the canvas that holds the real overall image
-    {
-      backgroundCanvas = document.getElementById('background');
-      backgroundCanvas.width = bgImg.width;
-      backgroundCanvas.height = bgImg.height;
-      backgroundCanvas.getContext("2d").drawImage(bgImg,0,0);
-    }
-
-    canvaso = document.getElementById('whiteBoard');
-    if (!canvaso) {
-      alert('Error: Cannot find the imageView canvas element!');
-      return;
-    }
-
-    if (!canvaso.getContext) {
-      alert('Error: no canvas.getContext!');
-      return;
-    }
-    canvaso.width = 700;
-    canvaso.height = 400;
-
-    // Get the 2D canvas context.
-    contexto = canvaso.getContext('2d');
-    if (!contexto) {
-      alert('Error: failed to getContext!');
-      return;
-    }
-
-    // Add the temporary canvas.
-    var container = canvaso.parentNode;
-
-    toolCanvas = document.createElement('canvas');
-    if (!toolCanvas) {
-      alert('Error: Cannot create a new canvas element!');
-      return;
-    }
-
-    toolCanvas.id = 'toolCanvas';
-    toolCanvas.width = canvaso.width;
-    toolCanvas.height = canvaso.height;
-    container.appendChild(toolCanvas);
-
-    toolContext = toolCanvas.getContext('2d');
-
-    compositingCanvas = document.createElement('canvas');
-    if (!compositingCanvas) {
-      alert('Error: Cannot create a new canvas element!');
-      return;
-    }
-
-    compositingCanvas.id = 'compositingCanvas';
-    compositingCanvas.width = canvaso.width;
-    compositingCanvas.height = canvaso.height;
-    //container.appendChild(compositingCanvas);
-
-    compositingContext = compositingCanvas.getContext('2d');
-
-    // Activate the default tool.
-    SelectTool(tool_default);
-
-    // Attach the mousedown, mousemove and mouseup event listeners.
-    toolCanvas.addEventListener('mousedown', ev_canvas, false);
-    toolCanvas.addEventListener('mousemove', ev_canvas, false);
-    toolCanvas.addEventListener('mouseup', ev_canvas, false);
-    toolCanvas.addEventListener('mouseout', ev_canvas, false);
-    toolCanvas.addEventListener("wheel", ev_canvas, false);
-    // Supress the context menu
-    toolCanvas.oncontextmenu = function () { return false; }
-
-    toolContext.clearRect(0, 0, toolCanvas.width, toolCanvas.height);
-    toggleBG1();
-  }
-  catch (err) {
-    alert(err.message);
-  }
-
-}
 
 function ev_canvas(ev) {
   var iebody = (document.compatMode && document.compatMode != "BackCompat") ? document.documentElement : document.body
@@ -313,109 +239,6 @@ function ev_canvas(ev) {
   catch (err) {
     alert(err.message);
   }
-}
-
-// Add the current contents of the tool canvas to the specified layer
-function updateLayer(layerIndex) {
-
-  // Bake the drawing into the layer and clear the tool context
-  //compositingContext.rect(0, 0, compositingCanvas.width, compositingCanvas.height);
-  //compositingContext.clip();
-  
-  // Composite into the layer (tiled)
-  // TODO: Handle zoom
-  compositingContext.setTransform(1, 0, 0, 1, -panTool.panX, -panTool.panY);
-  compositingContext.drawImage(toolCanvas, -toolCanvas.width, -toolCanvas.height);
-  compositingContext.drawImage(toolCanvas, -toolCanvas.width, 0);
-  compositingContext.drawImage(toolCanvas, -toolCanvas.width, toolCanvas.height);
-  compositingContext.drawImage(toolCanvas, 0, -toolCanvas.height);
-  compositingContext.drawImage(toolCanvas, 0, 0);
-  compositingContext.drawImage(toolCanvas, 0, toolCanvas.height);
-  compositingContext.drawImage(toolCanvas, toolCanvas.width, -toolCanvas.height);
-  compositingContext.drawImage(toolCanvas, toolCanvas.width, 0);
-  compositingContext.drawImage(toolCanvas, toolCanvas.width, toolCanvas.height);
-
-  // And clear the tool context now we have added it to the layer
-  toolContext.clearRect(0, 0, toolCanvas.width, toolCanvas.height);
-
-  // update the main output canvas
-  updatecanvas()
-}
-
-// Composite the layers into the output image and tile, pan and zoom it
-function updatecanvas() {
-
-  /*
-  // Draw a background
-  var img = new Image;
-  img.onload = function()
-  {
-    // Extract the background image and store it.
-  }
-  img.src = "/images/pencil_dim.png";
-  // TODO make sure that the images is loaded, ideally use the onLoad() function for the document element (hidden?)
-  compositingContext.drawImage(img, 0, 0, img.width, img.height);
-
-  // Shouldn't do anything with the tool context here, as this is an overlay that will be baked in when tool is finished.
-  //compositingContext.drawImage(toolCanvas, 0, 0, toolCanvas.width, toolCanvas.height); // TODO: Stretch layers to match background
-
-  // Debug: draw the pan position
-  compositingContext.fillText(panTool.panX, 10, 10); // TODO: Stretch layers to match background
-  compositingContext.fillText(panTool.panY, 30, 10); // TODO: Stretch layers to match background
-  */
-
-  contexto.clearRect(0, 0, canvaso.width, canvaso.height);
-
-  // Maintain aspect ratio
-  // Calculate an aspectFactor such that we take a section of the source image such that it fits the dest viewport without scaling
-  var aspectFactor =  backgroundCanvas.width / canvaso.height;
-
-  // Now duplicate the end result to get tiling
-  contexto.drawImage(backgroundCanvas,
-    -panTool.panX - backgroundCanvas.width, -panTool.panY - backgroundCanvas.height, zoomTool.zoom * backgroundCanvas.width, zoomTool.zoom * backgroundCanvas.height,
-    0, 0, canvaso.width, canvaso.height * aspectFactor);
-  contexto.drawImage(backgroundCanvas,
-    -panTool.panX - backgroundCanvas.width, -panTool.panY - 0, zoomTool.zoom * backgroundCanvas.width, zoomTool.zoom * backgroundCanvas.height,
-    0, 0, canvaso.width, canvaso.height * aspectFactor);
-  contexto.drawImage(backgroundCanvas,
-    -panTool.panX - backgroundCanvas.width, -panTool.panY + backgroundCanvas.height, zoomTool.zoom * backgroundCanvas.width, zoomTool.zoom * backgroundCanvas.height,
-    0, 0, canvaso.width, canvaso.height * aspectFactor);
-
-  contexto.drawImage(backgroundCanvas,
-    -panTool.panX - 0, -panTool.panY - backgroundCanvas.height, zoomTool.zoom * backgroundCanvas.width, zoomTool.zoom * backgroundCanvas.height,
-    0, 0, canvaso.width, canvaso.height * aspectFactor);
-  contexto.drawImage(backgroundCanvas,
-    -panTool.panX - 0, -panTool.panY - 0, zoomTool.zoom * backgroundCanvas.width, zoomTool.zoom * backgroundCanvas.height,
-    0, 0, canvaso.width, canvaso.height * aspectFactor);
-  contexto.drawImage(backgroundCanvas,
-    -panTool.panX - 0, -panTool.panY + backgroundCanvas.height, zoomTool.zoom * backgroundCanvas.width, zoomTool.zoom * backgroundCanvas.height,
-    0, 0, canvaso.width, canvaso.height * aspectFactor);
-
-  contexto.drawImage(backgroundCanvas,
-    -panTool.panX + backgroundCanvas.width, -panTool.panY - backgroundCanvas.height, zoomTool.zoom * backgroundCanvas.width, zoomTool.zoom * backgroundCanvas.height,
-    0, 0, canvaso.width, canvaso.height * aspectFactor);
-  contexto.drawImage(backgroundCanvas,
-    -panTool.panX + backgroundCanvas.width, -panTool.panY - 0, zoomTool.zoom * backgroundCanvas.width, zoomTool.zoom * backgroundCanvas.height,
-    0, 0, canvaso.width, canvaso.height * aspectFactor);
-  contexto.drawImage(backgroundCanvas,
-    -panTool.panX + backgroundCanvas.width, -panTool.panY + backgroundCanvas.height, zoomTool.zoom * backgroundCanvas.width, zoomTool.zoom * backgroundCanvas.height,
-    0, 0, canvaso.width, canvaso.height * aspectFactor);
-
-  /*
-  // copy the generated content (with tiling)
-  contexto.clearRect(-canvaso.width, -canvaso.height, canvaso.width * 3, canvaso.height * 3);
-  contexto.setTransform(1, 0, 0, 1, panTool.panX, panTool.panY);
-
-  contexto.drawImage(compositingCanvas, -canvaso.width, -canvaso.height);
-  contexto.drawImage(compositingCanvas, 0, -canvaso.height);
-  contexto.drawImage(compositingCanvas, canvaso.width, -canvaso.height);
-  contexto.drawImage(compositingCanvas, -canvaso.width, 0);
-  contexto.drawImage(compositingCanvas, 0, 0);
-  contexto.drawImage(compositingCanvas, canvaso.width, 0);
-  contexto.drawImage(compositingCanvas, -canvaso.width, canvaso.height);
-  contexto.drawImage(compositingCanvas, 0, canvaso.height);
-  contexto.drawImage(compositingCanvas, canvaso.width, canvaso.height);
-  */
 }
 
 
