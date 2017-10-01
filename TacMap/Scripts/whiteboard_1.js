@@ -378,16 +378,8 @@ function updatecanvas() {
   contexto.clearRect(0, 0, canvaso.width, canvaso.height);
 
   // Maintain aspect ratio
-  var srcAspect = backgroundCanvas.width / backgroundCanvas.height;
-  var destAspect = canvaso.width / canvaso.height;
-
-  var aspectFactor = 1;
-  if (srcAspect >= 1)
-  {
-    // width is primary axis
-    // Calculate an aspectFactor such that we take a section of the source image such that it fits the dest viewport without scaling
-    var aspectFactor = canvaso.height / backgroundCanvas.width;
-  }
+  // Calculate an aspectFactor such that we take a section of the source image such that it fits the dest viewport without scaling
+  var aspectFactor =  backgroundCanvas.width / canvaso.height;
 
   contexto.drawImage(backgroundCanvas,
     -panTool.panX, -panTool.panY, zoomTool.zoom * backgroundCanvas.width, zoomTool.zoom * backgroundCanvas.height,
