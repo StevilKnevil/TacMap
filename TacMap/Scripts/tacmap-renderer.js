@@ -2,7 +2,7 @@
 var renderer;
 
 // TODO: Hide these in the renderer
-var toolCanvas, toolContext, canvaso, contexto, compositingCanvas, compositingContext;
+var toolCanvas, toolContext, canvaso, contexto, layerCanvas, layerContext;
 var backgroundCanvas;
 
 var Renderer = function(bgImg)
@@ -16,24 +16,24 @@ var Renderer = function(bgImg)
   this.height = bgImg.height;
 
   // Add the current contents of the tool canvas to the specified layer
-  this.updateLayer = function (layerIndex) {
+  this.doRender = function() {
 
     // Bake the drawing into the layer and clear the tool context
-    //compositingContext.rect(0, 0, compositingCanvas.width, compositingCanvas.height);
-    //compositingContext.clip();
+    //layerContext.rect(0, 0, layerCanvas.width, layerCanvas.height);
+    //layerContext.clip();
 
     // Composite into the layer (tiled)
     // TODO: Handle zoom
-    compositingContext.setTransform(1, 0, 0, 1, -panTool.panX, -panTool.panY);
-    compositingContext.drawImage(toolCanvas, -toolCanvas.width, -toolCanvas.height);
-    compositingContext.drawImage(toolCanvas, -toolCanvas.width, 0);
-    compositingContext.drawImage(toolCanvas, -toolCanvas.width, toolCanvas.height);
-    compositingContext.drawImage(toolCanvas, 0, -toolCanvas.height);
-    compositingContext.drawImage(toolCanvas, 0, 0);
-    compositingContext.drawImage(toolCanvas, 0, toolCanvas.height);
-    compositingContext.drawImage(toolCanvas, toolCanvas.width, -toolCanvas.height);
-    compositingContext.drawImage(toolCanvas, toolCanvas.width, 0);
-    compositingContext.drawImage(toolCanvas, toolCanvas.width, toolCanvas.height);
+    layerContext.setTransform(1, 0, 0, 1, -panTool.panX, -panTool.panY);
+    layerContext.drawImage(toolCanvas, -toolCanvas.width, -toolCanvas.height);
+    layerContext.drawImage(toolCanvas, -toolCanvas.width, 0);
+    layerContext.drawImage(toolCanvas, -toolCanvas.width, toolCanvas.height);
+    layerContext.drawImage(toolCanvas, 0, -toolCanvas.height);
+    layerContext.drawImage(toolCanvas, 0, 0);
+    layerContext.drawImage(toolCanvas, 0, toolCanvas.height);
+    layerContext.drawImage(toolCanvas, toolCanvas.width, -toolCanvas.height);
+    layerContext.drawImage(toolCanvas, toolCanvas.width, 0);
+    layerContext.drawImage(toolCanvas, toolCanvas.width, toolCanvas.height);
 
     // And clear the tool context now we have added it to the layer
     toolContext.clearRect(0, 0, toolCanvas.width, toolCanvas.height);
@@ -81,15 +81,15 @@ var Renderer = function(bgImg)
     contexto.clearRect(-canvaso.width, -canvaso.height, canvaso.width * 3, canvaso.height * 3);
     contexto.setTransform(1, 0, 0, 1, panTool.panX, panTool.panY);
 
-    contexto.drawImage(compositingCanvas, -canvaso.width, -canvaso.height);
-    contexto.drawImage(compositingCanvas, 0, -canvaso.height);
-    contexto.drawImage(compositingCanvas, canvaso.width, -canvaso.height);
-    contexto.drawImage(compositingCanvas, -canvaso.width, 0);
-    contexto.drawImage(compositingCanvas, 0, 0);
-    contexto.drawImage(compositingCanvas, canvaso.width, 0);
-    contexto.drawImage(compositingCanvas, -canvaso.width, canvaso.height);
-    contexto.drawImage(compositingCanvas, 0, canvaso.height);
-    contexto.drawImage(compositingCanvas, canvaso.width, canvaso.height);
+    contexto.drawImage(layerCanvas, -canvaso.width, -canvaso.height);
+    contexto.drawImage(layerCanvas, 0, -canvaso.height);
+    contexto.drawImage(layerCanvas, canvaso.width, -canvaso.height);
+    contexto.drawImage(layerCanvas, -canvaso.width, 0);
+    contexto.drawImage(layerCanvas, 0, 0);
+    contexto.drawImage(layerCanvas, canvaso.width, 0);
+    contexto.drawImage(layerCanvas, -canvaso.width, canvaso.height);
+    contexto.drawImage(layerCanvas, 0, canvaso.height);
+    contexto.drawImage(layerCanvas, canvaso.width, canvaso.height);
     */
   };
 
@@ -166,7 +166,7 @@ var Renderer = function(bgImg)
 
     if (needsRedraw)
     {
-      theRenderer.updateLayer();
+      theRenderer.doRender();
     }
 
   }
@@ -203,14 +203,14 @@ var Renderer = function(bgImg)
 
     // Add the layer canvases
     {
-      compositingCanvas = document.createElement('canvas');
-      compositingCanvas.id = 'compositingCanvas';
-      compositingCanvas.width = canvaso.width;
-      compositingCanvas.height = canvaso.height;
+      layerCanvas = document.createElement('canvas');
+      layerCanvas.id = 'layerCanvas';
+      layerCanvas.width = canvaso.width;
+      layerCanvas.height = canvaso.height;
       // Don't need to append because we don't need to see it
-      //container.appendChild(compositingCanvas);
+      //container.appendChild(layerCanvas);
 
-      compositingContext = compositingCanvas.getContext('2d');
+      layerContext = layerCanvas.getContext('2d');
     }
 
     // Attach the mousedown, mousemove and mouseup event listeners.

@@ -25,7 +25,7 @@ function DrawIt(drawObject, syncServer) {
         toolContext.stroke();
         toolContext.closePath();
         if (drawObject.DrawState == DrawStates.Completed) {
-          renderer.updateLayer();
+          renderer.doRender();
         }
         break;
     }
@@ -42,7 +42,7 @@ function DrawIt(drawObject, syncServer) {
         toolContext.lineTo(drawObject.CurrentX, drawObject.CurrentY);
         toolContext.stroke();
         if (drawObject.DrawState == DrawStates.Completed) {
-          renderer.updateLayer();
+          renderer.doRender();
         }
         break;
     }
@@ -58,7 +58,7 @@ function DrawIt(drawObject, syncServer) {
         toolContext.textBaseline = "bottom";
         toolContext.fillText(drawObject.Text, drawObject.StartX, drawObject.StartY);
         toolContext.restore();
-        renderer.updateLayer();
+        renderer.doRender();
         break;
 
     }
@@ -73,7 +73,7 @@ function DrawIt(drawObject, syncServer) {
         toolContext.fillStyle = "#FFFFFF";
         toolContext.fillRect(drawObject.StartX, drawObject.StartY, 10, 10);
         toolContext.restore();
-        renderer.updateLayer();
+        renderer.doRender();
         //toolContext.clearRect(drawObject.StartX, drawObject.StartY, 5, 5);
         break;
       case DrawStates.Inprogress:
@@ -81,7 +81,7 @@ function DrawIt(drawObject, syncServer) {
         toolContext.fillStyle = "#FFFFFF";
         toolContext.fillRect(drawObject.CurrentX, drawObject.CurrentY, 10, 10);
         toolContext.restore();
-        renderer.updateLayer();
+        renderer.doRender();
         // toolContext.clearRect(drawObject.CurrentX, drawObject.CurrentY, 5, 5);
         break;
     }
@@ -106,7 +106,7 @@ function DrawIt(drawObject, syncServer) {
 
         toolContext.strokeRect(x, y, w, h);
         if (drawObject.DrawState == DrawStates.Completed) {
-          renderer.updateLayer();
+          renderer.doRender();
         }
         break;
     }
