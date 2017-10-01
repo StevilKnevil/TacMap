@@ -168,6 +168,17 @@ function toggleBG2() {
 $(document).ready(function () {
 
   JoinHub();
+
+  // Load the background Image
+  // Draw a background
+  var bgImg = new Image;
+  bgImg.onload = function ()
+  {
+    // Extract the background image and store it.
+    initRendering(bgImg);
+  }
+  bgImg.src = "/Images/backgrounds/testgroup/background.jpg"
+
   $("#userName").val("");
   $("#dialog-form").dialog({ autoOpen: false, width: 350, modal: true, closeOnEscape: false });
   $("#dialog-form").dialog("open");
