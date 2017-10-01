@@ -12,22 +12,11 @@ var toolCanvas, toolContext, canvaso, contexto, compositingCanvas, compositingCo
 var backgroundCanvas;
 
 var tool;
-var WIDTH;
-var HEIGHT;
-var INTERVAL = 20;
-
-var mx, my;
-var URL = window.webkitURL || window.URL;
-
-var selectedLineWidth = 5;
-
 
 var drawObjectsCollection = [];
-var drawPlaybackCollection = [];
 
 
 function DrawIt(drawObject, syncServer) {
-
 
   if (drawObject.Tool == DrawTools.Line) {
     switch (drawObject.DrawState) {
