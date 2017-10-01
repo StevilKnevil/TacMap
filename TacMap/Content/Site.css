@@ -12,6 +12,8 @@ body {
     font-family: "Segoe UI", Verdana, Helvetica, Sans-Serif;
     margin: 0;
     padding: 0;
+    /* Suppress scroll bars */
+    overflow: hidden;
 }
 
 a {
@@ -90,7 +92,7 @@ h5, h6 {
 ----------------------------------------------------------*/
 .content-wrapper {
     margin: 0 auto;
-    max-width: 960px;
+    /*max-width: 960px;*/
 }
 
 #body {
