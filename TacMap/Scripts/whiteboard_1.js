@@ -381,11 +381,36 @@ function updatecanvas() {
   // Calculate an aspectFactor such that we take a section of the source image such that it fits the dest viewport without scaling
   var aspectFactor =  backgroundCanvas.width / canvaso.height;
 
+  // Now duplicate the end result to get tiling
   contexto.drawImage(backgroundCanvas,
-    -panTool.panX, -panTool.panY, zoomTool.zoom * backgroundCanvas.width, zoomTool.zoom * backgroundCanvas.height,
+    -panTool.panX - backgroundCanvas.width, -panTool.panY - backgroundCanvas.height, zoomTool.zoom * backgroundCanvas.width, zoomTool.zoom * backgroundCanvas.height,
+    0, 0, canvaso.width, canvaso.height * aspectFactor);
+  contexto.drawImage(backgroundCanvas,
+    -panTool.panX - backgroundCanvas.width, -panTool.panY - 0, zoomTool.zoom * backgroundCanvas.width, zoomTool.zoom * backgroundCanvas.height,
+    0, 0, canvaso.width, canvaso.height * aspectFactor);
+  contexto.drawImage(backgroundCanvas,
+    -panTool.panX - backgroundCanvas.width, -panTool.panY + backgroundCanvas.height, zoomTool.zoom * backgroundCanvas.width, zoomTool.zoom * backgroundCanvas.height,
     0, 0, canvaso.width, canvaso.height * aspectFactor);
 
-  // Now duplicate the end result to get tiling
+  contexto.drawImage(backgroundCanvas,
+    -panTool.panX - 0, -panTool.panY - backgroundCanvas.height, zoomTool.zoom * backgroundCanvas.width, zoomTool.zoom * backgroundCanvas.height,
+    0, 0, canvaso.width, canvaso.height * aspectFactor);
+  contexto.drawImage(backgroundCanvas,
+    -panTool.panX - 0, -panTool.panY - 0, zoomTool.zoom * backgroundCanvas.width, zoomTool.zoom * backgroundCanvas.height,
+    0, 0, canvaso.width, canvaso.height * aspectFactor);
+  contexto.drawImage(backgroundCanvas,
+    -panTool.panX - 0, -panTool.panY + backgroundCanvas.height, zoomTool.zoom * backgroundCanvas.width, zoomTool.zoom * backgroundCanvas.height,
+    0, 0, canvaso.width, canvaso.height * aspectFactor);
+
+  contexto.drawImage(backgroundCanvas,
+    -panTool.panX + backgroundCanvas.width, -panTool.panY - backgroundCanvas.height, zoomTool.zoom * backgroundCanvas.width, zoomTool.zoom * backgroundCanvas.height,
+    0, 0, canvaso.width, canvaso.height * aspectFactor);
+  contexto.drawImage(backgroundCanvas,
+    -panTool.panX + backgroundCanvas.width, -panTool.panY - 0, zoomTool.zoom * backgroundCanvas.width, zoomTool.zoom * backgroundCanvas.height,
+    0, 0, canvaso.width, canvaso.height * aspectFactor);
+  contexto.drawImage(backgroundCanvas,
+    -panTool.panX + backgroundCanvas.width, -panTool.panY + backgroundCanvas.height, zoomTool.zoom * backgroundCanvas.width, zoomTool.zoom * backgroundCanvas.height,
+    0, 0, canvaso.width, canvaso.height * aspectFactor);
 
   /*
   // copy the generated content (with tiling)
