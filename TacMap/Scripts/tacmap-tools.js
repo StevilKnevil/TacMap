@@ -262,7 +262,11 @@ tools.zoom = function (ev) {
     // Clamp
     var minZoom = 0.1;
     var maxZoom = 10;
+    // Clamp zoom to 3x width or height of back ground (whichever is smaller)
+    // This is dependent on client canvas size
     this.zoom = Math.min(maxZoom, Math.max(minZoom, this.zoom));
+    // Adjust the pan so that we zoom around centre of view
+
     updatecanvas();
   };
 };
