@@ -23,6 +23,7 @@ var DrawTools =
 var whiteboardHub;
 var tool_default = 'line';
 var toolCanvas, toolContext, canvaso, contexto, compositingCanvas, compositingContext;
+var backgroundCanvas;
 
 var tool;
 var WIDTH;
@@ -37,11 +38,6 @@ var selectedLineWidth = 5;
 
 var drawObjectsCollection = [];
 var drawPlaybackCollection = [];
-
-// TODO ultimately shouldn't need these
-var eraseTool = new tools.erase();
-var panTool = new tools.pan();
-
 
 
 function DrawIt(drawObject, syncServer) {
@@ -187,8 +183,19 @@ $(document).ready(function () {
       $("#btnJoin").click();
     }
   });
+});
 
+function initRendering(bgImg)
+{
   try {
+
+    // Set up the canvas that holds the real overall image
+    {
+      backgroundCanvas = document.getElementById('background');
+      backgroundCanvas.width = bgImg.width;
+      backgroundCanvas.height = bgImg.height;
+      backgroundCanvas.getContext("2d").drawImage(bgImg,0,0);
+    }
 
     canvaso = document.getElementById('whiteBoard');
     if (!canvaso) {
@@ -258,7 +265,7 @@ $(document).ready(function () {
     alert(err.message);
   }
 
-});
+}
 
 function ev_canvas(ev) {
   var iebody = (document.compatMode && document.compatMode != "BackCompat") ? document.documentElement : document.body
@@ -279,6 +286,9 @@ function ev_canvas(ev) {
       ev._x = ev.offsetX;
       ev._y = ev.offsetY - dsoctop;
     }
+
+    ev.wheelDelta = Math.max(-1, Math.min(1, (ev.wheelDelta || -ev.detail)));
+
 
     // LMB
     // TODO: need a way of sending mouseUp to the tool, without looking at button. How does this fit with using RMB and MMB for specific tools? 
@@ -307,8 +317,6 @@ function ev_canvas(ev) {
 
     // MMB
     // TODO: Add a panning tool (and ultimately a zoom tool - handle that normally, and have special case code for middle mouse button. c.f. right mouse for erase.
-    // Handle mouse wheel for zoom
-    //var wheelDelta = Math.max(-1, Math.min(1, (ev.wheelDelta || -ev.detail)));
     if (ev.buttons == 4 || ev.buttons == 0) {
       // Call the event handler of the tool.
       var func = panTool[ev.type];
@@ -316,8 +324,16 @@ function ev_canvas(ev) {
       if (func) {
         func(ev);
       }
+      // Avoid scolling the page - TODO This doesn't work
+      //return false;
     }
-    
+
+    // mouse wheel for zoom
+    if (ev.type == "wheel")
+    {
+      zoomTool[ev.type](ev);
+      return false;
+    }
   }
   catch (err) {
     alert(err.message);
@@ -373,6 +389,27 @@ function updatecanvas() {
   compositingContext.fillText(panTool.panY, 30, 10); // TODO: Stretch layers to match background
   */
 
+  contexto.clearRect(0, 0, canvaso.width, canvaso.height);
+
+  // Maintain aspect ratio
+  var srcAspect = backgroundCanvas.width / backgroundCanvas.height;
+  var destAspect = canvaso.width / canvaso.height;
+
+  var aspectFactor = 1;
+  if (srcAspect >= 1)
+  {
+    // width is primary axis
+    // Calculate an aspectFactor such that we take a section of the source image such that it fits the dest viewport without scaling
+    var aspectFactor = canvaso.height / backgroundCanvas.width;
+  }
+
+  contexto.drawImage(backgroundCanvas,
+    -panTool.panX, -panTool.panY, zoomTool.zoom * backgroundCanvas.width, zoomTool.zoom * backgroundCanvas.height,
+    0, 0, canvaso.width, canvaso.height * aspectFactor);
+
+  // Now duplicate the end result to get tiling
+
+  /*
   // copy the generated content (with tiling)
   contexto.clearRect(-canvaso.width, -canvaso.height, canvaso.width * 3, canvaso.height * 3);
   contexto.setTransform(1, 0, 0, 1, panTool.panX, panTool.panY);
@@ -386,6 +423,7 @@ function updatecanvas() {
   contexto.drawImage(compositingCanvas, -canvaso.width, canvaso.height);
   contexto.drawImage(compositingCanvas, 0, canvaso.height);
   contexto.drawImage(compositingCanvas, canvaso.width, canvaso.height);
+  */
 }
 
 

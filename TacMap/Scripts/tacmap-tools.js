@@ -215,8 +215,19 @@ tools.pan = function (ev) {
     if (!tool.started) {
       return;
     }
-    tool.panX += ev.movementX;
-    tool.panY += ev.movementY;
+    tool.panX += ev.movementX * zoomTool.zoom;
+    tool.panY += ev.movementY * zoomTool.zoom;
+
+    if (tool.panX > backgroundCanvas.width)
+      tool.panX -= backgroundCanvas.width;
+    if (tool.panX < 0)
+      tool.panX += backgroundCanvas.width;
+
+    if (tool.panY > backgroundCanvas.height)
+      tool.panY -= backgroundCanvas.height;
+    if (tool.panY < 0)
+      tool.panY += backgroundCanvas.height;
+
     updatecanvas();
   };
   this.mouseup = function (ev) {
@@ -224,3 +235,23 @@ tools.pan = function (ev) {
   }
 };
 
+tools.zoom = function (ev) {
+
+  var tool = this;
+  this.zoom = 1;
+
+  this.wheel = function (ev) {
+    var zoomSpeed = 10;
+    this.zoom += ev.wheelDelta / (120 * zoomSpeed);
+    // Clamp
+    var minZoom = 0.1;
+    var maxZoom = 10;
+    this.zoom = Math.min(maxZoom, Math.max(minZoom, this.zoom));
+    updatecanvas();
+  };
+};
+
+// TODO ultimately shouldn't need these
+var eraseTool = new tools.erase();
+var panTool = new tools.pan();
+var zoomTool = new tools.zoom();
