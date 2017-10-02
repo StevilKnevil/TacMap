@@ -3,7 +3,7 @@ var renderer;
 
 // TODO: Hide these in the renderer
 var toolCanvas, toolContext, canvaso, contexto, layerCanvas, layerContext;
-var backgroundCanvas;
+var backgroundCanvas, backgroundContext;
 
 var Renderer = function(bgImg)
 {
@@ -104,6 +104,8 @@ var Renderer = function(bgImg)
   ///////////
   // store 'this' so we can use it in the event handlers
   var theRenderer = this;
+  var backgroundImage;
+
   onMouse = function(ev) {
     // Normalise the event
     {
@@ -184,10 +186,12 @@ var Renderer = function(bgImg)
   var init = function (bgImg) {
     // Set up the canvas that holds the real overall image
     {
+      backgroundImage = bgImg;
       backgroundCanvas = document.getElementById('background');
       backgroundCanvas.width = bgImg.width;
       backgroundCanvas.height = bgImg.height;
-      backgroundCanvas.getContext("2d").drawImage(bgImg, 0, 0);
+      backgroundContext = backgroundCanvas.getContext("2d");
+      backgroundContext.drawImage(bgImg, 0, 0);
     }
 
     // Set up the output canvas
