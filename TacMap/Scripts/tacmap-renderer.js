@@ -18,25 +18,11 @@ var Renderer = function(bgImg)
   // Add the current contents of the tool canvas to the specified layer
   this.doRender = function() {
 
-    // Bake the drawing into the layer and clear the tool context
-    //layerContext.rect(0, 0, layerCanvas.width, layerCanvas.height);
-    //layerContext.clip();
+    // Composite the layers onto the background image, then copy that onto the output canvas, finally, clear the background canvas with the image
+    backgroundContext.drawImage(backgroundImage, 0, 0);
 
-    // Composite into the layer (tiled)
-    // TODO: Handle zoom
-    layerContext.setTransform(1, 0, 0, 1, -panTool.panX, -panTool.panY);
-    layerContext.drawImage(toolCanvas, -toolCanvas.width, -toolCanvas.height);
-    layerContext.drawImage(toolCanvas, -toolCanvas.width, 0);
-    layerContext.drawImage(toolCanvas, -toolCanvas.width, toolCanvas.height);
-    layerContext.drawImage(toolCanvas, 0, -toolCanvas.height);
-    layerContext.drawImage(toolCanvas, 0, 0);
-    layerContext.drawImage(toolCanvas, 0, toolCanvas.height);
-    layerContext.drawImage(toolCanvas, toolCanvas.width, -toolCanvas.height);
-    layerContext.drawImage(toolCanvas, toolCanvas.width, 0);
-    layerContext.drawImage(toolCanvas, toolCanvas.width, toolCanvas.height);
-
-    // And clear the tool context now we have added it to the layer
-    toolContext.clearRect(0, 0, toolCanvas.width, toolCanvas.height);
+    // Copy the layer onto the background
+    backgroundContext.drawImage(layerCanvas, 0, 0);
 
     // Now update the main output canvas
     contexto.clearRect(0, 0, canvaso.width, canvaso.height);
