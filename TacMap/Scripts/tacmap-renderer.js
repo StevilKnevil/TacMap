@@ -41,40 +41,46 @@ var Renderer = function(bgImg)
     // Now update the main output canvas
     contexto.clearRect(0, 0, canvaso.width, canvaso.height);
 
-    // Maintain aspect ratio
     // Calculate an aspectFactor such that we take a section of the source image such that it fits the dest viewport without scaling
     var aspectFactor = backgroundCanvas.width / canvaso.height;
+    // Helper calcs
+    var src = {
+      width: backgroundCanvas.width,
+      height: backgroundCanvas.height,
+      zoomedWidth: zoomTool.zoom * backgroundCanvas.width,
+      zoomedHeight: zoomTool.zoom * backgroundCanvas.height,
+    }
 
     // Now duplicate the end result to get tiling
     contexto.drawImage(backgroundCanvas,
-      -panTool.panX - backgroundCanvas.width, -panTool.panY - backgroundCanvas.height, zoomTool.zoom * backgroundCanvas.width, zoomTool.zoom * backgroundCanvas.height,
-      0, 0, canvaso.width, canvaso.height * aspectFactor);
+      -panTool.panX - src.width, -panTool.panY - src.height, src.zoomedWidth, src.zoomedHeight,
+      0, 0, src.width, src.height);
     contexto.drawImage(backgroundCanvas,
-      -panTool.panX - backgroundCanvas.width, -panTool.panY - 0, zoomTool.zoom * backgroundCanvas.width, zoomTool.zoom * backgroundCanvas.height,
-      0, 0, canvaso.width, canvaso.height * aspectFactor);
+      -panTool.panX - src.width, -panTool.panY - 0, src.zoomedWidth, src.zoomedHeight,
+      0, 0, src.width, src.height);
     contexto.drawImage(backgroundCanvas,
-      -panTool.panX - backgroundCanvas.width, -panTool.panY + backgroundCanvas.height, zoomTool.zoom * backgroundCanvas.width, zoomTool.zoom * backgroundCanvas.height,
-      0, 0, canvaso.width, canvaso.height * aspectFactor);
+      -panTool.panX - src.width, -panTool.panY + src.height, src.zoomedWidth, src.zoomedHeight,
+      0, 0, src.width, src.height);
 
     contexto.drawImage(backgroundCanvas,
-      -panTool.panX - 0, -panTool.panY - backgroundCanvas.height, zoomTool.zoom * backgroundCanvas.width, zoomTool.zoom * backgroundCanvas.height,
-      0, 0, canvaso.width, canvaso.height * aspectFactor);
+      -panTool.panX - 0, -panTool.panY - src.height, src.zoomedWidth, src.zoomedHeight,
+      0, 0, src.width, src.height);
     contexto.drawImage(backgroundCanvas,
-      -panTool.panX - 0, -panTool.panY - 0, zoomTool.zoom * backgroundCanvas.width, zoomTool.zoom * backgroundCanvas.height,
-      0, 0, canvaso.width, canvaso.height * aspectFactor);
+      -panTool.panX - 0, -panTool.panY - 0, src.zoomedWidth, src.zoomedHeight,
+      0, 0, src.width, src.height);
     contexto.drawImage(backgroundCanvas,
-      -panTool.panX - 0, -panTool.panY + backgroundCanvas.height, zoomTool.zoom * backgroundCanvas.width, zoomTool.zoom * backgroundCanvas.height,
-      0, 0, canvaso.width, canvaso.height * aspectFactor);
+      -panTool.panX - 0, -panTool.panY + src.height, src.zoomedWidth, src.zoomedHeight,
+      0, 0, src.width, src.height);
 
     contexto.drawImage(backgroundCanvas,
-      -panTool.panX + backgroundCanvas.width, -panTool.panY - backgroundCanvas.height, zoomTool.zoom * backgroundCanvas.width, zoomTool.zoom * backgroundCanvas.height,
-      0, 0, canvaso.width, canvaso.height * aspectFactor);
+      -panTool.panX + src.width, -panTool.panY - src.height, src.zoomedWidth, src.zoomedHeight,
+      0, 0, src.width, src.height);
     contexto.drawImage(backgroundCanvas,
-      -panTool.panX + backgroundCanvas.width, -panTool.panY - 0, zoomTool.zoom * backgroundCanvas.width, zoomTool.zoom * backgroundCanvas.height,
-      0, 0, canvaso.width, canvaso.height * aspectFactor);
+      -panTool.panX + src.width, -panTool.panY - 0, src.zoomedWidth, src.zoomedHeight,
+      0, 0, src.width, src.height);
     contexto.drawImage(backgroundCanvas,
-      -panTool.panX + backgroundCanvas.width, -panTool.panY + backgroundCanvas.height, zoomTool.zoom * backgroundCanvas.width, zoomTool.zoom * backgroundCanvas.height,
-      0, 0, canvaso.width, canvaso.height * aspectFactor);
+      -panTool.panX + src.width, -panTool.panY + src.height, src.zoomedWidth, src.zoomedHeight,
+      0, 0, src.width, src.height);
 
     /*
     // copy the generated content (with tiling)
