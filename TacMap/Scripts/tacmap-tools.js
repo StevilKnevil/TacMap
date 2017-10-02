@@ -83,8 +83,8 @@ tools.rect = function () {
 
   this.mousedown = function (ev) {
     drawObject.DrawState = DrawStates.Started;
-    drawObject.StartX = ev._x;
-    drawObject.StartY = ev._y;
+    drawObject.StartX = ev.canvasX;
+    drawObject.StartY = ev.canvasY;
     tool.started = true;
   };
 
@@ -93,19 +93,18 @@ tools.rect = function () {
       return;
     }
     drawObject.DrawState = DrawStates.Inprogress;
-    drawObject.CurrentX = ev._x;
-    drawObject.CurrentY = ev._y;
-    DrawIt(drawObject, true);
+    drawObject.CurrentX = ev.canvasX;
+    drawObject.CurrentY = ev.canvasY;
+    DrawCreationTool(drawObject);
   };
 
   this.mouseup = function (ev) {
     if (tool.started) {
       drawObject.DrawState = DrawStates.Completed;
-      drawObject.CurrentX = ev._x;
-      drawObject.CurrentY = ev._y;
-      DrawIt(drawObject, true);
+      drawObject.CurrentX = ev.canvasX;
+      drawObject.CurrentY = ev.canvasY;
+      DrawTool(drawObject);
       tool.started = false;
-
     }
   };
 };
