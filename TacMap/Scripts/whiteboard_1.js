@@ -132,6 +132,206 @@ function DrawIt(drawObject, syncServer) {
   }
 }
 
+function DrawCreationTool(drawObject) {
+
+  // Clear the creation context first
+  toolContext.clearRect(0, 0, toolCanvas.width, toolCanvas.height);
+
+  var ctx = toolContext;
+
+  /*
+  if (drawObject.Tool == DrawTools.Line) {
+    switch (drawObject.DrawState) {
+      case DrawStates.Inprogress:
+      case DrawStates.Completed:
+        ctx.beginPath();
+        ctx.moveTo(drawObject.StartX, drawObject.StartY);
+        ctx.lineTo(drawObject.CurrentX, drawObject.CurrentY);
+        ctx.stroke();
+        ctx.closePath();
+        break;
+    }
+  }
+  else if (drawObject.Tool == DrawTools.Pencil) {
+
+    switch (drawObject.DrawState) {
+      case DrawStates.Started:
+        ctx.beginPath();
+        ctx.moveTo(drawObject.StartX, drawObject.StartY);
+        break;
+      case DrawStates.Inprogress:
+      case DrawStates.Completed:
+        ctx.lineTo(drawObject.CurrentX, drawObject.CurrentY);
+        ctx.stroke();
+        if (drawObject.DrawState == DrawStates.Completed) {
+          renderer.doRender();
+        }
+        break;
+    }
+  }
+  else if (drawObject.Tool == DrawTools.Text) {
+    switch (drawObject.DrawState) {
+      case DrawStates.Started:
+        ctx.clearRect(0, 0, toolCanvas.width, toolCanvas.height);
+        ctx.save();
+        ctx.font = 'normal 16px Calibri';
+        ctx.fillStyle = "blue";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "bottom";
+        ctx.fillText(drawObject.Text, drawObject.StartX, drawObject.StartY);
+        ctx.restore();
+        renderer.doRender();
+        break;
+
+    }
+
+
+  }
+  else if (drawObject.Tool == DrawTools.Erase) {
+
+    switch (drawObject.DrawState) {
+
+      case DrawStates.Started:
+        toolContext.fillStyle = "#FFFFFF";
+        toolContext.fillRect(drawObject.StartX, drawObject.StartY, 10, 10);
+        toolContext.restore();
+        renderer.doRender();
+        break;
+      case DrawStates.Inprogress:
+      case DrawStates.Completed:
+        toolContext.fillStyle = "#FFFFFF";
+        toolContext.fillRect(drawObject.CurrentX, drawObject.CurrentY, 10, 10);
+        toolContext.restore();
+        renderer.doRender();
+        break;
+    }
+
+
+  }
+  
+
+  else */if (drawObject.Tool == DrawTools.Rect) {
+    var x = Math.min(drawObject.CurrentX, drawObject.StartX),
+            y = Math.min(drawObject.CurrentY, drawObject.StartY),
+            w = Math.abs(drawObject.CurrentX - drawObject.StartX),
+            h = Math.abs(drawObject.CurrentY - drawObject.StartY);
+
+    if (!w || !h) {
+      return;
+    }
+
+
+    ctx.strokeRect(x, y, w, h);
+  }
+
+}
+
+function DrawTool(drawObject) {
+
+  var ctx = layerContext;
+
+  /*
+  if (drawObject.Tool == DrawTools.Line) {
+    switch (drawObject.DrawState) {
+      case DrawStates.Inprogress:
+      case DrawStates.Completed:
+        // TODO: when completed, draw this to the current layer context and clear the 'working' or 'tool' context
+        toolContext.clearRect(0, 0, toolCanvas.width, toolCanvas.height);
+        toolContext.beginPath();
+        toolContext.moveTo(drawObject.StartX, drawObject.StartY);
+        toolContext.lineTo(drawObject.CurrentX, drawObject.CurrentY);
+        toolContext.stroke();
+        toolContext.closePath();
+        if (drawObject.DrawState == DrawStates.Completed) {
+          renderer.doRender();
+        }
+        break;
+    }
+  }
+  else if (drawObject.Tool == DrawTools.Pencil) {
+
+    switch (drawObject.DrawState) {
+      case DrawStates.Started:
+        toolContext.beginPath();
+        toolContext.moveTo(drawObject.StartX, drawObject.StartY);
+        break;
+      case DrawStates.Inprogress:
+      case DrawStates.Completed:
+        toolContext.lineTo(drawObject.CurrentX, drawObject.CurrentY);
+        toolContext.stroke();
+        if (drawObject.DrawState == DrawStates.Completed) {
+          renderer.doRender();
+        }
+        break;
+    }
+  }
+  else if (drawObject.Tool == DrawTools.Text) {
+    switch (drawObject.DrawState) {
+      case DrawStates.Started:
+        toolContext.clearRect(0, 0, toolCanvas.width, toolCanvas.height);
+        toolContext.save();
+        toolContext.font = 'normal 16px Calibri';
+        toolContext.fillStyle = "blue";
+        toolContext.textAlign = "left";
+        toolContext.textBaseline = "bottom";
+        toolContext.fillText(drawObject.Text, drawObject.StartX, drawObject.StartY);
+        toolContext.restore();
+        renderer.doRender();
+        break;
+
+    }
+
+
+  }
+  else if (drawObject.Tool == DrawTools.Erase) {
+
+    switch (drawObject.DrawState) {
+
+      case DrawStates.Started:
+        toolContext.fillStyle = "#FFFFFF";
+        toolContext.fillRect(drawObject.StartX, drawObject.StartY, 10, 10);
+        toolContext.restore();
+        renderer.doRender();
+        break;
+      case DrawStates.Inprogress:
+      case DrawStates.Completed:
+        toolContext.fillStyle = "#FFFFFF";
+        toolContext.fillRect(drawObject.CurrentX, drawObject.CurrentY, 10, 10);
+        toolContext.restore();
+        renderer.doRender();
+        break;
+    }
+
+
+  }
+  else*/ if (drawObject.Tool == DrawTools.Rect) {
+
+    var x = Math.min(drawObject.CurrentX, drawObject.StartX),
+            y = Math.min(drawObject.CurrentY, drawObject.StartY),
+            w = Math.abs(drawObject.CurrentX - drawObject.StartX),
+            h = Math.abs(drawObject.CurrentY - drawObject.StartY);
+
+    if (!w || !h) {
+      return;
+    }
+
+    // Draw to the layer
+    ctx.strokeRect(x, y, w, h);
+  }
+
+  // update the output image
+  renderer.doRender();
+
+  // Send the current state of the tool to the server so all clients can see it
+  // Consider pencil: will we get message spam?
+  {
+    drawObjectsCollection = [];
+    drawObjectsCollection.push(drawObject);
+    var message = JSON.stringify(drawObjectsCollection);
+    whiteboardHub.server.sendDraw(message, $("#sessinId").val(), $("#groupName").val(), $("#userName").val());
+  }
+}
+
 function toggleBG1() {
   setTimeout(function () { $('#divShare').css("background-color", "silver"); toggleBG2() }, 800);
 }
