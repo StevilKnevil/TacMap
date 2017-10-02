@@ -126,6 +126,10 @@ var Renderer = function(bgImg)
       }
 
       ev.wheelDelta = Math.max(-1, Math.min(1, (ev.wheelDelta || -ev.detail)));
+
+      // Work out the mouse position in canvas space
+      ev.canvasX = Math.round((ev._x * zoomTool.zoom) - panTool.panX);
+      ev.canvasY = Math.round((ev._y * zoomTool.zoom) - panTool.panY);
     }
 
     var needsRedraw = false;
