@@ -48,10 +48,7 @@ namespace TacMap.SignalR
       if (!sqlConnectionLookup.ContainsKey(groupName))
       {
         // pass all the info so far.
-        string dbName = "drawItems";
-        string dataSource = @"(localdb)\MSSQLLocalDB";
-        string connStr = string.Format(@"Data Source={0};Initial Catalog={1};Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False",
-          dataSource, dbName);
+        string connStr = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["LocalDrawItemsDB"].ConnectionString;
 
         // TODO: before connecting make sure the DB exists:
         // https://stackoverflow.com/questions/2232227/check-if-database-exists-before-creating
