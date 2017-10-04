@@ -137,7 +137,7 @@ var Renderer = function(bgImg)
     }
 
     // RMB
-    if (ev.buttons == 2 || ev.buttons == 0) {
+    else if (ev.buttons == 2 || ev.buttons == 0) {
       // Call the event handler of the tool.
       var func = eraseTool[ev.type];
 
@@ -148,7 +148,7 @@ var Renderer = function(bgImg)
 
     // MMB
     // TODO: Add a panning tool (and ultimately a zoom tool - handle that normally, and have special case code for middle mouse button. c.f. right mouse for erase.
-    if (ev.buttons == 4 || ev.buttons == 0) {
+    else if (ev.buttons == 4 || ev.buttons == 0) {
       // Call the event handler of the tool.
       var func = panTool[ev.type];
 
