@@ -70,7 +70,9 @@ function DrawIt(drawObject, syncServer) {
     switch (drawObject.DrawState) {
 
       case DrawStates.Started:
-        toolContext.fillStyle = "#FFFFFF";
+        toolContext.save();
+        toolContext.fillStyle = "#FFFFFFFF";
+        toolContext.globalCompositeOperation = "destination-out";
         toolContext.fillRect(drawObject.StartX, drawObject.StartY, 10, 10);
         toolContext.restore();
         renderer.doRender();
@@ -78,7 +80,9 @@ function DrawIt(drawObject, syncServer) {
         break;
       case DrawStates.Inprogress:
       case DrawStates.Completed:
-        toolContext.fillStyle = "#FFFFFF";
+        toolContext.save();
+        toolContext.fillStyle = "#FFFFFFFF";
+        toolContext.globalCompositeOperation = "destination-out";
         toolContext.fillRect(drawObject.CurrentX, drawObject.CurrentY, 10, 10);
         toolContext.restore();
         renderer.doRender();
