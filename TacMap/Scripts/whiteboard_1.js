@@ -380,11 +380,11 @@ function SelectTool(toolName) {
   }
 
   if (toolName == "line" || toolName == "curve" || toolName == "measure")
-    canvaso.style.cursor = "crosshair";
+    outputCanvas.style.cursor = "crosshair";
   else if (toolName == "select")
-    canvaso.style.cursor = "default";
+    outputCanvas.style.cursor = "default";
   else if (toolName == "text")
-    canvaso.style.cursor = "text";
+    outputCanvas.style.cursor = "text";
 
   ChangeIcons(toolName);
 }

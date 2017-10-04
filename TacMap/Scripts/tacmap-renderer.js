@@ -2,7 +2,7 @@
 var renderer;
 
 // TODO: Hide these in the renderer
-var toolCanvas, toolContext, canvaso, contexto, layerCanvas, layerContext;
+var toolCanvas, toolContext, outputCanvas, outputContext, layerCanvas, layerContext;
 var backgroundCanvas, backgroundContext;
 
 var Renderer = function(bgImg)
@@ -25,10 +25,10 @@ var Renderer = function(bgImg)
     backgroundContext.drawImage(layerCanvas, 0, 0);
 
     // Now update the main output canvas
-    contexto.clearRect(0, 0, canvaso.width, canvaso.height);
+    outputContext.clearRect(0, 0, outputCanvas.width, outputCanvas.height);
 
     // Calculate an aspectFactor such that we take a section of the source image such that it fits the dest viewport without scaling
-    var aspectFactor = backgroundCanvas.width / canvaso.height;
+    var aspectFactor = backgroundCanvas.width / outputCanvas.height;
     // Helper calcs
     var src = {
       width: backgroundCanvas.width,
@@ -38,50 +38,50 @@ var Renderer = function(bgImg)
     }
 
     // Now duplicate the end result to get tiling
-    contexto.drawImage(backgroundCanvas,
+    outputContext.drawImage(backgroundCanvas,
       -panTool.panX - src.width, -panTool.panY - src.height, src.zoomedWidth, src.zoomedHeight,
       0, 0, src.width, src.height);
-    contexto.drawImage(backgroundCanvas,
+    outputContext.drawImage(backgroundCanvas,
       -panTool.panX - src.width, -panTool.panY - 0, src.zoomedWidth, src.zoomedHeight,
       0, 0, src.width, src.height);
-    contexto.drawImage(backgroundCanvas,
+    outputContext.drawImage(backgroundCanvas,
       -panTool.panX - src.width, -panTool.panY + src.height, src.zoomedWidth, src.zoomedHeight,
       0, 0, src.width, src.height);
 
-    contexto.drawImage(backgroundCanvas,
+    outputContext.drawImage(backgroundCanvas,
       -panTool.panX - 0, -panTool.panY - src.height, src.zoomedWidth, src.zoomedHeight,
       0, 0, src.width, src.height);
-    contexto.drawImage(backgroundCanvas,
+    outputContext.drawImage(backgroundCanvas,
       -panTool.panX - 0, -panTool.panY - 0, src.zoomedWidth, src.zoomedHeight,
       0, 0, src.width, src.height);
-    contexto.drawImage(backgroundCanvas,
+    outputContext.drawImage(backgroundCanvas,
       -panTool.panX - 0, -panTool.panY + src.height, src.zoomedWidth, src.zoomedHeight,
       0, 0, src.width, src.height);
 
-    contexto.drawImage(backgroundCanvas,
+    outputContext.drawImage(backgroundCanvas,
       -panTool.panX + src.width, -panTool.panY - src.height, src.zoomedWidth, src.zoomedHeight,
       0, 0, src.width, src.height);
-    contexto.drawImage(backgroundCanvas,
+    outputContext.drawImage(backgroundCanvas,
       -panTool.panX + src.width, -panTool.panY - 0, src.zoomedWidth, src.zoomedHeight,
       0, 0, src.width, src.height);
-    contexto.drawImage(backgroundCanvas,
+    outputContext.drawImage(backgroundCanvas,
       -panTool.panX + src.width, -panTool.panY + src.height, src.zoomedWidth, src.zoomedHeight,
       0, 0, src.width, src.height);
 
     /*
     // copy the generated content (with tiling)
-    contexto.clearRect(-canvaso.width, -canvaso.height, canvaso.width * 3, canvaso.height * 3);
-    contexto.setTransform(1, 0, 0, 1, panTool.panX, panTool.panY);
+    outputContext.clearRect(-outputCanvas.width, -outputCanvas.height, outputCanvas.width * 3, outputCanvas.height * 3);
+    outputContext.setTransform(1, 0, 0, 1, panTool.panX, panTool.panY);
 
-    contexto.drawImage(layerCanvas, -canvaso.width, -canvaso.height);
-    contexto.drawImage(layerCanvas, 0, -canvaso.height);
-    contexto.drawImage(layerCanvas, canvaso.width, -canvaso.height);
-    contexto.drawImage(layerCanvas, -canvaso.width, 0);
-    contexto.drawImage(layerCanvas, 0, 0);
-    contexto.drawImage(layerCanvas, canvaso.width, 0);
-    contexto.drawImage(layerCanvas, -canvaso.width, canvaso.height);
-    contexto.drawImage(layerCanvas, 0, canvaso.height);
-    contexto.drawImage(layerCanvas, canvaso.width, canvaso.height);
+    outputContext.drawImage(layerCanvas, -outputCanvas.width, -outputCanvas.height);
+    outputContext.drawImage(layerCanvas, 0, -outputCanvas.height);
+    outputContext.drawImage(layerCanvas, outputCanvas.width, -outputCanvas.height);
+    outputContext.drawImage(layerCanvas, -outputCanvas.width, 0);
+    outputContext.drawImage(layerCanvas, 0, 0);
+    outputContext.drawImage(layerCanvas, outputCanvas.width, 0);
+    outputContext.drawImage(layerCanvas, -outputCanvas.width, outputCanvas.height);
+    outputContext.drawImage(layerCanvas, 0, outputCanvas.height);
+    outputContext.drawImage(layerCanvas, outputCanvas.width, outputCanvas.height);
     */
   };
 
@@ -182,21 +182,21 @@ var Renderer = function(bgImg)
 
     // Set up the output canvas
     {
-      canvaso = document.getElementById('whiteBoard');
-      canvaso.width = 700;
-      canvaso.height = 400;
+      outputCanvas = document.getElementById('whiteBoard');
+      outputCanvas.width = 700;
+      outputCanvas.height = 400;
       // Get the 2D canvas context.
-      contexto = canvaso.getContext('2d');
+      outputContext = outputCanvas.getContext('2d');
     }
 
-    var container = canvaso.parentNode;
+    var container = outputCanvas.parentNode;
 
     // Add the temporary tool canvas.
     {
       toolCanvas = document.createElement('canvas');
       toolCanvas.id = 'toolCanvas';
-      toolCanvas.width = canvaso.width;
-      toolCanvas.height = canvaso.height;
+      toolCanvas.width = outputCanvas.width;
+      toolCanvas.height = outputCanvas.height;
       toolContext = toolCanvas.getContext('2d');
       container.appendChild(toolCanvas);
     }
@@ -205,8 +205,8 @@ var Renderer = function(bgImg)
     {
       layerCanvas = document.createElement('canvas');
       layerCanvas.id = 'layerCanvas';
-      layerCanvas.width = canvaso.width;
-      layerCanvas.height = canvaso.height;
+      layerCanvas.width = outputCanvas.width;
+      layerCanvas.height = outputCanvas.height;
       // Don't need to append because we don't need to see it
       //container.appendChild(layerCanvas);
 
