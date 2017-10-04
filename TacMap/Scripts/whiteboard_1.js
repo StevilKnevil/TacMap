@@ -370,10 +370,6 @@ $(document).ready(function () {
   });
 });
 
-
-
-
-
 function SelectTool(toolName) {
   if (tools[toolName]) {
     tool = new tools[toolName]();
