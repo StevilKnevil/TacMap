@@ -3,7 +3,7 @@ var renderer;
 
 // TODO: Hide these in the renderer
 var toolCanvas, toolContext, outputCanvas, outputContext, layerCanvas, layerContext;
-var backgroundCanvas, backgroundContext;
+var workingCanvas, workingContext;
 
 var Renderer = function(bgImg)
 {
@@ -11,60 +11,58 @@ var Renderer = function(bgImg)
   // Public
   ///////////
 
-  // Now construct and return the renderer object
-  this.width = bgImg.width;
-  this.height = bgImg.height;
+  this.backgroundImage = bgImg;
 
   // Add the current contents of the tool canvas to the specified layer
   this.doRender = function() {
 
     // Composite the layers onto the background image, then copy that onto the output canvas, finally, clear the background canvas with the image
-    backgroundContext.drawImage(backgroundImage, 0, 0);
+    workingContext.drawImage(this.backgroundImage, 0, 0);
 
     // Copy the layer onto the background
-    backgroundContext.drawImage(layerCanvas, 0, 0);
+    workingContext.drawImage(layerCanvas, 0, 0);
 
     // Now update the main output canvas
     outputContext.clearRect(0, 0, outputCanvas.width, outputCanvas.height);
 
     // Calculate an aspectFactor such that we take a section of the source image such that it fits the dest viewport without scaling
-    var aspectFactor = backgroundCanvas.width / outputCanvas.height;
+    var aspectFactor = workingCanvas.width / outputCanvas.height;
     // Helper calcs
     var src = {
-      width: backgroundCanvas.width,
-      height: backgroundCanvas.height,
-      zoomedWidth: zoomTool.zoom * backgroundCanvas.width,
-      zoomedHeight: zoomTool.zoom * backgroundCanvas.height,
+      width: workingCanvas.width,
+      height: workingCanvas.height,
+      zoomedWidth: zoomTool.zoom * workingCanvas.width,
+      zoomedHeight: zoomTool.zoom * workingCanvas.height,
     }
 
     // Now duplicate the end result to get tiling
-    outputContext.drawImage(backgroundCanvas,
+    outputContext.drawImage(workingCanvas,
       -panTool.panX - src.width, -panTool.panY - src.height, src.zoomedWidth, src.zoomedHeight,
       0, 0, src.width, src.height);
-    outputContext.drawImage(backgroundCanvas,
+    outputContext.drawImage(workingCanvas,
       -panTool.panX - src.width, -panTool.panY - 0, src.zoomedWidth, src.zoomedHeight,
       0, 0, src.width, src.height);
-    outputContext.drawImage(backgroundCanvas,
+    outputContext.drawImage(workingCanvas,
       -panTool.panX - src.width, -panTool.panY + src.height, src.zoomedWidth, src.zoomedHeight,
       0, 0, src.width, src.height);
 
-    outputContext.drawImage(backgroundCanvas,
+    outputContext.drawImage(workingCanvas,
       -panTool.panX - 0, -panTool.panY - src.height, src.zoomedWidth, src.zoomedHeight,
       0, 0, src.width, src.height);
-    outputContext.drawImage(backgroundCanvas,
+    outputContext.drawImage(workingCanvas,
       -panTool.panX - 0, -panTool.panY - 0, src.zoomedWidth, src.zoomedHeight,
       0, 0, src.width, src.height);
-    outputContext.drawImage(backgroundCanvas,
+    outputContext.drawImage(workingCanvas,
       -panTool.panX - 0, -panTool.panY + src.height, src.zoomedWidth, src.zoomedHeight,
       0, 0, src.width, src.height);
 
-    outputContext.drawImage(backgroundCanvas,
+    outputContext.drawImage(workingCanvas,
       -panTool.panX + src.width, -panTool.panY - src.height, src.zoomedWidth, src.zoomedHeight,
       0, 0, src.width, src.height);
-    outputContext.drawImage(backgroundCanvas,
+    outputContext.drawImage(workingCanvas,
       -panTool.panX + src.width, -panTool.panY - 0, src.zoomedWidth, src.zoomedHeight,
       0, 0, src.width, src.height);
-    outputContext.drawImage(backgroundCanvas,
+    outputContext.drawImage(workingCanvas,
       -panTool.panX + src.width, -panTool.panY + src.height, src.zoomedWidth, src.zoomedHeight,
       0, 0, src.width, src.height);
 
@@ -90,7 +88,6 @@ var Renderer = function(bgImg)
   ///////////
   // store 'this' so we can use it in the event handlers
   var theRenderer = this;
-  var backgroundImage;
 
   onMouse = function(ev) {
     // Normalise the event
@@ -172,12 +169,11 @@ var Renderer = function(bgImg)
   var init = function (bgImg) {
     // Set up the canvas that holds the real overall image
     {
-      backgroundImage = bgImg;
-      backgroundCanvas = document.getElementById('background');
-      backgroundCanvas.width = bgImg.width;
-      backgroundCanvas.height = bgImg.height;
-      backgroundContext = backgroundCanvas.getContext("2d");
-      backgroundContext.drawImage(bgImg, 0, 0);
+      workingCanvas = document.getElementById('background');
+      workingCanvas.width = bgImg.width;
+      workingCanvas.height = bgImg.height;
+      workingContext = workingCanvas.getContext("2d");
+      workingContext.drawImage(bgImg, 0, 0);
     }
 
     // Set up the output canvas
