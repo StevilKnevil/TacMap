@@ -233,15 +233,15 @@ tools.pan = function (ev) {
     tool.panX += ev.movementX * zoomTool.zoom;
     tool.panY += ev.movementY * zoomTool.zoom;
 
-    if (tool.panX > backgroundCanvas.width)
-      tool.panX -= backgroundCanvas.width;
+    if (tool.panX > renderer.backgroundImage.width)
+      tool.panX -= renderer.backgroundImage.width;
     if (tool.panX < 0)
-      tool.panX += backgroundCanvas.width;
+      tool.panX += renderer.backgroundImage.width;
 
-    if (tool.panY > backgroundCanvas.height)
-      tool.panY -= backgroundCanvas.height;
+    if (tool.panY > renderer.backgroundImage.height)
+      tool.panY -= renderer.backgroundImage.height;
     if (tool.panY < 0)
-      tool.panY += backgroundCanvas.height;
+      tool.panY += renderer.backgroundImage.height;
 
     return true;
   };
