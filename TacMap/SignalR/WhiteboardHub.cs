@@ -97,9 +97,10 @@ namespace TacMap.SignalR
 
       // Add the connection
       Groups.Add(Context.ConnectionId, groupName);
-      
+
       // Send all the history of drawn objects to the new client to make sure it's up to date.
       List<Backend.DrawItem> drawItems = new List<Backend.DrawItem>();
+
       using (var sqlConnection = EnsureDBConnection(groupName))
       {
         sqlConnection.Open();
@@ -122,11 +123,11 @@ namespace TacMap.SignalR
           // TODO: Close the reader
         }
         sqlConnection.Close();
-
-        string json = Backend.DrawItem.ToJson(drawItems);
-        // Consider having a seperate function for server historic data calls?
-        Clients.Caller.HandleDraw(json, "<no session>", "Server");
       }
+
+      string json = Backend.DrawItem.ToJson(drawItems);
+      // Consider having a seperate function for server historic data calls?
+      Clients.Caller.HandleDraw(json, "<no session>", "Server");
     }
     public void JoinChat(string name, string groupName)
     {
