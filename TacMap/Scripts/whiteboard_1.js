@@ -1,7 +1,7 @@
 ﻿// Recognition : Alvin George, KPMG
 
 // TODO: Clean up cruft
-// There is a 'toolCanvas' which gets cleared and redrawn as the user drags around with the mouse. when the drawing is complete this then gets baked into the canvas fo rthe current layer
+// There is a 'transientViewportCanvas' which gets cleared and redrawn as the user drags around with the mouse. when the drawing is complete this then gets baked into the canvas fo rthe current layer
 // The layers all get baked into the final 'whiteboard' canvas (canvaso - canvasoutput? need renaming) which is transformed correctly depending on user view params.
 
 var whiteboardHub;
@@ -18,14 +18,14 @@ function DrawIt(drawObject, syncServer) {
       case DrawStates.Inprogress:
       case DrawStates.Completed:
         // TODO: when completed, draw this to the current layer context and clear the 'working' or 'tool' context
-        toolContext.clearRect(0, 0, toolCanvas.width, toolCanvas.height);
-        toolContext.beginPath();
-        toolContext.moveTo(drawObject.StartX, drawObject.StartY);
-        toolContext.lineTo(drawObject.CurrentX, drawObject.CurrentY);
-        toolContext.stroke();
-        toolContext.closePath();
+        transientViewportContext.clearRect(0, 0, transientViewportCanvas.width, transientViewportCanvas.height);
+        transientViewportContext.beginPath();
+        transientViewportContext.moveTo(drawObject.StartX, drawObject.StartY);
+        transientViewportContext.lineTo(drawObject.CurrentX, drawObject.CurrentY);
+        transientViewportContext.stroke();
+        transientViewportContext.closePath();
         if (drawObject.DrawState == DrawStates.Completed) {
-          renderer.doRender();
+          renderer.updateViewport();
         }
         break;
     }
@@ -34,15 +34,15 @@ function DrawIt(drawObject, syncServer) {
 
     switch (drawObject.DrawState) {
       case DrawStates.Started:
-        toolContext.beginPath();
-        toolContext.moveTo(drawObject.StartX, drawObject.StartY);
+        transientViewportContext.beginPath();
+        transientViewportContext.moveTo(drawObject.StartX, drawObject.StartY);
         break;
       case DrawStates.Inprogress:
       case DrawStates.Completed:
-        toolContext.lineTo(drawObject.CurrentX, drawObject.CurrentY);
-        toolContext.stroke();
+        transientViewportContext.lineTo(drawObject.CurrentX, drawObject.CurrentY);
+        transientViewportContext.stroke();
         if (drawObject.DrawState == DrawStates.Completed) {
-          renderer.doRender();
+          renderer.updateViewport();
         }
         break;
     }
@@ -50,15 +50,15 @@ function DrawIt(drawObject, syncServer) {
   else if (drawObject.Tool == DrawTools.Text) {
     switch (drawObject.DrawState) {
       case DrawStates.Started:
-        toolContext.clearRect(0, 0, toolCanvas.width, toolCanvas.height);
-        toolContext.save();
-        toolContext.font = 'normal 16px Calibri';
-        toolContext.fillStyle = "blue";
-        toolContext.textAlign = "left";
-        toolContext.textBaseline = "bottom";
-        toolContext.fillText(drawObject.Text, drawObject.StartX, drawObject.StartY);
-        toolContext.restore();
-        renderer.doRender();
+        transientViewportContext.clearRect(0, 0, transientViewportCanvas.width, transientViewportCanvas.height);
+        transientViewportContext.save();
+        transientViewportContext.font = 'normal 16px Calibri';
+        transientViewportContext.fillStyle = "blue";
+        transientViewportContext.textAlign = "left";
+        transientViewportContext.textBaseline = "bottom";
+        transientViewportContext.fillText(drawObject.Text, drawObject.StartX, drawObject.StartY);
+        transientViewportContext.restore();
+        renderer.updateViewport();
         break;
 
     }
@@ -70,23 +70,23 @@ function DrawIt(drawObject, syncServer) {
     switch (drawObject.DrawState) {
 
       case DrawStates.Started:
-        toolContext.save();
-        toolContext.fillStyle = "#FFFFFFFF";
-        toolContext.globalCompositeOperation = "destination-out";
-        toolContext.fillRect(drawObject.StartX, drawObject.StartY, 10, 10);
-        toolContext.restore();
-        renderer.doRender();
-        //toolContext.clearRect(drawObject.StartX, drawObject.StartY, 5, 5);
+        transientViewportContext.save();
+        transientViewportContext.fillStyle = "#FFFFFFFF";
+        transientViewportContext.globalCompositeOperation = "destination-out";
+        transientViewportContext.fillRect(drawObject.StartX, drawObject.StartY, 10, 10);
+        transientViewportContext.restore();
+        renderer.updateViewport();
+        //transientViewportContext.clearRect(drawObject.StartX, drawObject.StartY, 5, 5);
         break;
       case DrawStates.Inprogress:
       case DrawStates.Completed:
-        toolContext.save();
-        toolContext.fillStyle = "#FFFFFFFF";
-        toolContext.globalCompositeOperation = "destination-out";
-        toolContext.fillRect(drawObject.CurrentX, drawObject.CurrentY, 10, 10);
-        toolContext.restore();
-        renderer.doRender();
-        // toolContext.clearRect(drawObject.CurrentX, drawObject.CurrentY, 5, 5);
+        transientViewportContext.save();
+        transientViewportContext.fillStyle = "#FFFFFFFF";
+        transientViewportContext.globalCompositeOperation = "destination-out";
+        transientViewportContext.fillRect(drawObject.CurrentX, drawObject.CurrentY, 10, 10);
+        transientViewportContext.restore();
+        renderer.updateViewport();
+        // transientViewportContext.clearRect(drawObject.CurrentX, drawObject.CurrentY, 5, 5);
         break;
     }
 
@@ -102,15 +102,15 @@ function DrawIt(drawObject, syncServer) {
                 w = Math.abs(drawObject.CurrentX - drawObject.StartX),
                 h = Math.abs(drawObject.CurrentY - drawObject.StartY);
 
-        toolContext.clearRect(0, 0, toolCanvas.width, toolCanvas.height);
+        transientViewportContext.clearRect(0, 0, transientViewportCanvas.width, transientViewportCanvas.height);
 
         if (!w || !h) {
           return;
         }
 
-        toolContext.strokeRect(x, y, w, h);
+        transientViewportContext.strokeRect(x, y, w, h);
         if (drawObject.DrawState == DrawStates.Completed) {
-          renderer.doRender();
+          renderer.updateViewport();
         }
         break;
     }
@@ -119,9 +119,9 @@ function DrawIt(drawObject, syncServer) {
 
   /*
   else if (drawObject.Tool == DrawTools.Pan) {
-    toolContext.clearRect(0, 0, toolCanvas.width, toolCanvas.height);
-    toolContext.fillText(panTool.panX, 10, 10); // TODO: Stretch layers to match background
-    toolContext.fillText(panTool.panY, 30, 10); // TODO: Stretch layers to match background
+    transientViewportContext.clearRect(0, 0, transientViewportCanvas.width, transientViewportCanvas.height);
+    transientViewportContext.fillText(panTool.panX, 10, 10); // TODO: Stretch layers to match background
+    transientViewportContext.fillText(panTool.panY, 30, 10); // TODO: Stretch layers to match background
   }
   */
 
@@ -137,11 +137,12 @@ function DrawIt(drawObject, syncServer) {
 }
 
 function DrawCreationTool(drawObject) {
+  // TODO: Instead we should store a list of 'immediate mode objects' from all clients and then have a (60Hz?) interval to update it.
 
   // Clear the creation context first
-  toolContext.clearRect(0, 0, toolCanvas.width, toolCanvas.height);
+  transientWorkingContext.clearRect(0, 0, transientWorkingCanvas.width, transientWorkingCanvas.height);
 
-  var ctx = toolContext;
+  var ctx = transientWorkingContext;
 
   /*
   if (drawObject.Tool == DrawTools.Line) {
@@ -168,7 +169,7 @@ function DrawCreationTool(drawObject) {
         ctx.lineTo(drawObject.CurrentX, drawObject.CurrentY);
         ctx.stroke();
         if (drawObject.DrawState == DrawStates.Completed) {
-          renderer.doRender();
+          renderer.updateViewport();
         }
         break;
     }
@@ -176,7 +177,7 @@ function DrawCreationTool(drawObject) {
   else if (drawObject.Tool == DrawTools.Text) {
     switch (drawObject.DrawState) {
       case DrawStates.Started:
-        ctx.clearRect(0, 0, toolCanvas.width, toolCanvas.height);
+        ctx.clearRect(0, 0, transientViewportCanvas.width, transientViewportCanvas.height);
         ctx.save();
         ctx.font = 'normal 16px Calibri';
         ctx.fillStyle = "blue";
@@ -184,7 +185,7 @@ function DrawCreationTool(drawObject) {
         ctx.textBaseline = "bottom";
         ctx.fillText(drawObject.Text, drawObject.StartX, drawObject.StartY);
         ctx.restore();
-        renderer.doRender();
+        renderer.updateViewport();
         break;
 
     }
@@ -196,17 +197,17 @@ function DrawCreationTool(drawObject) {
     switch (drawObject.DrawState) {
 
       case DrawStates.Started:
-        toolContext.fillStyle = "#FFFFFF";
-        toolContext.fillRect(drawObject.StartX, drawObject.StartY, 10, 10);
-        toolContext.restore();
-        renderer.doRender();
+        transientViewportContext.fillStyle = "#FFFFFF";
+        transientViewportContext.fillRect(drawObject.StartX, drawObject.StartY, 10, 10);
+        transientViewportContext.restore();
+        renderer.updateViewport();
         break;
       case DrawStates.Inprogress:
       case DrawStates.Completed:
-        toolContext.fillStyle = "#FFFFFF";
-        toolContext.fillRect(drawObject.CurrentX, drawObject.CurrentY, 10, 10);
-        toolContext.restore();
-        renderer.doRender();
+        transientViewportContext.fillStyle = "#FFFFFF";
+        transientViewportContext.fillRect(drawObject.CurrentX, drawObject.CurrentY, 10, 10);
+        transientViewportContext.restore();
+        renderer.updateViewport();
         break;
     }
 
@@ -224,13 +225,16 @@ function DrawCreationTool(drawObject) {
       return;
     }
 
-
     ctx.strokeRect(x, y, w, h);
   }
 
+  // update the output image
+  renderer.updateTransientViewport();
 }
 
 function DrawTool(drawObject) {
+
+  // TODO: Clear the transient canvas now we're comitting the shape to permanent. All fixed when reimplemented to store a list of transient shapes and redraw it when it changes.
 
   var ctx = layerContext;
 
@@ -240,14 +244,14 @@ function DrawTool(drawObject) {
       case DrawStates.Inprogress:
       case DrawStates.Completed:
         // TODO: when completed, draw this to the current layer context and clear the 'working' or 'tool' context
-        toolContext.clearRect(0, 0, toolCanvas.width, toolCanvas.height);
-        toolContext.beginPath();
-        toolContext.moveTo(drawObject.StartX, drawObject.StartY);
-        toolContext.lineTo(drawObject.CurrentX, drawObject.CurrentY);
-        toolContext.stroke();
-        toolContext.closePath();
+        transientViewportContext.clearRect(0, 0, transientViewportCanvas.width, transientViewportCanvas.height);
+        transientViewportContext.beginPath();
+        transientViewportContext.moveTo(drawObject.StartX, drawObject.StartY);
+        transientViewportContext.lineTo(drawObject.CurrentX, drawObject.CurrentY);
+        transientViewportContext.stroke();
+        transientViewportContext.closePath();
         if (drawObject.DrawState == DrawStates.Completed) {
-          renderer.doRender();
+          renderer.updateViewport();
         }
         break;
     }
@@ -256,15 +260,15 @@ function DrawTool(drawObject) {
 
     switch (drawObject.DrawState) {
       case DrawStates.Started:
-        toolContext.beginPath();
-        toolContext.moveTo(drawObject.StartX, drawObject.StartY);
+        transientViewportContext.beginPath();
+        transientViewportContext.moveTo(drawObject.StartX, drawObject.StartY);
         break;
       case DrawStates.Inprogress:
       case DrawStates.Completed:
-        toolContext.lineTo(drawObject.CurrentX, drawObject.CurrentY);
-        toolContext.stroke();
+        transientViewportContext.lineTo(drawObject.CurrentX, drawObject.CurrentY);
+        transientViewportContext.stroke();
         if (drawObject.DrawState == DrawStates.Completed) {
-          renderer.doRender();
+          renderer.updateViewport();
         }
         break;
     }
@@ -272,15 +276,15 @@ function DrawTool(drawObject) {
   else if (drawObject.Tool == DrawTools.Text) {
     switch (drawObject.DrawState) {
       case DrawStates.Started:
-        toolContext.clearRect(0, 0, toolCanvas.width, toolCanvas.height);
-        toolContext.save();
-        toolContext.font = 'normal 16px Calibri';
-        toolContext.fillStyle = "blue";
-        toolContext.textAlign = "left";
-        toolContext.textBaseline = "bottom";
-        toolContext.fillText(drawObject.Text, drawObject.StartX, drawObject.StartY);
-        toolContext.restore();
-        renderer.doRender();
+        transientViewportContext.clearRect(0, 0, transientViewportCanvas.width, transientViewportCanvas.height);
+        transientViewportContext.save();
+        transientViewportContext.font = 'normal 16px Calibri';
+        transientViewportContext.fillStyle = "blue";
+        transientViewportContext.textAlign = "left";
+        transientViewportContext.textBaseline = "bottom";
+        transientViewportContext.fillText(drawObject.Text, drawObject.StartX, drawObject.StartY);
+        transientViewportContext.restore();
+        renderer.updateViewport();
         break;
 
     }
@@ -292,17 +296,17 @@ function DrawTool(drawObject) {
     switch (drawObject.DrawState) {
 
       case DrawStates.Started:
-        toolContext.fillStyle = "#FFFFFF";
-        toolContext.fillRect(drawObject.StartX, drawObject.StartY, 10, 10);
-        toolContext.restore();
-        renderer.doRender();
+        transientViewportContext.fillStyle = "#FFFFFF";
+        transientViewportContext.fillRect(drawObject.StartX, drawObject.StartY, 10, 10);
+        transientViewportContext.restore();
+        renderer.updateViewport();
         break;
       case DrawStates.Inprogress:
       case DrawStates.Completed:
-        toolContext.fillStyle = "#FFFFFF";
-        toolContext.fillRect(drawObject.CurrentX, drawObject.CurrentY, 10, 10);
-        toolContext.restore();
-        renderer.doRender();
+        transientViewportContext.fillStyle = "#FFFFFF";
+        transientViewportContext.fillRect(drawObject.CurrentX, drawObject.CurrentY, 10, 10);
+        transientViewportContext.restore();
+        renderer.updateViewport();
         break;
     }
 
@@ -324,7 +328,7 @@ function DrawTool(drawObject) {
   }
 
   // update the output image
-  renderer.doRender();
+  renderer.updateViewport();
 
   // Send the current state of the tool to the server so all clients can see it
   // Consider pencil: will we get message spam?
@@ -376,11 +380,11 @@ function SelectTool(toolName) {
   }
 
   if (toolName == "line" || toolName == "curve" || toolName == "measure")
-    outputCanvas.style.cursor = "crosshair";
+    viewportCanvas.style.cursor = "crosshair";
   else if (toolName == "select")
-    outputCanvas.style.cursor = "default";
+    viewportCanvas.style.cursor = "default";
   else if (toolName == "text")
-    outputCanvas.style.cursor = "text";
+    viewportCanvas.style.cursor = "text";
 
   ChangeIcons(toolName);
 }

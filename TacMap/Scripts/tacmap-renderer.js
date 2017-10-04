@@ -1,9 +1,20 @@
 ﻿// TODO: Avoid this being a global, will need passing to the tools so they can trigger an update though?
 var renderer;
 
+// We have a:
+
+// Full size canvases:
+// workingCanvas: that is full size and holds the background image and the other layers are composited into. This is finally copied (tiled) onto the output viewport canvas
+// layerCanvas(es): Hold the drawing information for each layer and is composited into the workeingCanvas during render
+// transientWorkingCanvas: holds the 'immeidate mode' rendering that can be quickly updated. This is finally copied (tiled) onto the transient output viewport canvas
+
+// Output canvases or 'viewports'. Have pan and zoom.
+// viewportCanvas: Displays the contents with appropriate pan and zoom
+// transientViewportContext: Displays the 'immediate mode' rendering.
+
 // TODO: Hide these in the renderer
-var toolCanvas, toolContext, outputCanvas, outputContext, layerCanvas, layerContext;
-var workingCanvas, workingContext;
+var transientViewportCanvas, transientViewportContext, viewportCanvas, viewportContext, layerCanvas, layerContext;
+var workingCanvas, workingContext, transientWorkingCanvas, transientWorkingContext;
 
 var Renderer = function(bgImg)
 {
@@ -14,7 +25,7 @@ var Renderer = function(bgImg)
   this.backgroundImage = bgImg;
 
   // Add the current contents of the tool canvas to the specified layer
-  this.doRender = function() {
+  this.updateViewport = function() {
 
     // Composite the layers onto the background image, then copy that onto the output canvas, finally, clear the background canvas with the image
     workingContext.drawImage(this.backgroundImage, 0, 0);
@@ -23,10 +34,10 @@ var Renderer = function(bgImg)
     workingContext.drawImage(layerCanvas, 0, 0);
 
     // Now update the main output canvas
-    outputContext.clearRect(0, 0, outputCanvas.width, outputCanvas.height);
+    viewportContext.clearRect(0, 0, viewportCanvas.width, viewportCanvas.height);
 
     // Calculate an aspectFactor such that we take a section of the source image such that it fits the dest viewport without scaling
-    var aspectFactor = workingCanvas.width / outputCanvas.height;
+    var aspectFactor = workingCanvas.width / viewportCanvas.height;
     // Helper calcs
     var src = {
       width: workingCanvas.width,
@@ -36,51 +47,99 @@ var Renderer = function(bgImg)
     }
 
     // Now duplicate the end result to get tiling
-    outputContext.drawImage(workingCanvas,
+    viewportContext.drawImage(workingCanvas,
       -panTool.panX - src.width, -panTool.panY - src.height, src.zoomedWidth, src.zoomedHeight,
       0, 0, src.width, src.height);
-    outputContext.drawImage(workingCanvas,
+    viewportContext.drawImage(workingCanvas,
       -panTool.panX - src.width, -panTool.panY - 0, src.zoomedWidth, src.zoomedHeight,
       0, 0, src.width, src.height);
-    outputContext.drawImage(workingCanvas,
+    viewportContext.drawImage(workingCanvas,
       -panTool.panX - src.width, -panTool.panY + src.height, src.zoomedWidth, src.zoomedHeight,
       0, 0, src.width, src.height);
 
-    outputContext.drawImage(workingCanvas,
+    viewportContext.drawImage(workingCanvas,
       -panTool.panX - 0, -panTool.panY - src.height, src.zoomedWidth, src.zoomedHeight,
       0, 0, src.width, src.height);
-    outputContext.drawImage(workingCanvas,
+    viewportContext.drawImage(workingCanvas,
       -panTool.panX - 0, -panTool.panY - 0, src.zoomedWidth, src.zoomedHeight,
       0, 0, src.width, src.height);
-    outputContext.drawImage(workingCanvas,
+    viewportContext.drawImage(workingCanvas,
       -panTool.panX - 0, -panTool.panY + src.height, src.zoomedWidth, src.zoomedHeight,
       0, 0, src.width, src.height);
 
-    outputContext.drawImage(workingCanvas,
+    viewportContext.drawImage(workingCanvas,
       -panTool.panX + src.width, -panTool.panY - src.height, src.zoomedWidth, src.zoomedHeight,
       0, 0, src.width, src.height);
-    outputContext.drawImage(workingCanvas,
+    viewportContext.drawImage(workingCanvas,
       -panTool.panX + src.width, -panTool.panY - 0, src.zoomedWidth, src.zoomedHeight,
       0, 0, src.width, src.height);
-    outputContext.drawImage(workingCanvas,
+    viewportContext.drawImage(workingCanvas,
       -panTool.panX + src.width, -panTool.panY + src.height, src.zoomedWidth, src.zoomedHeight,
       0, 0, src.width, src.height);
 
     /*
     // copy the generated content (with tiling)
-    outputContext.clearRect(-outputCanvas.width, -outputCanvas.height, outputCanvas.width * 3, outputCanvas.height * 3);
-    outputContext.setTransform(1, 0, 0, 1, panTool.panX, panTool.panY);
+    viewportContext.clearRect(-viewportCanvas.width, -viewportCanvas.height, viewportCanvas.width * 3, viewportCanvas.height * 3);
+    viewportContext.setTransform(1, 0, 0, 1, panTool.panX, panTool.panY);
 
-    outputContext.drawImage(layerCanvas, -outputCanvas.width, -outputCanvas.height);
-    outputContext.drawImage(layerCanvas, 0, -outputCanvas.height);
-    outputContext.drawImage(layerCanvas, outputCanvas.width, -outputCanvas.height);
-    outputContext.drawImage(layerCanvas, -outputCanvas.width, 0);
-    outputContext.drawImage(layerCanvas, 0, 0);
-    outputContext.drawImage(layerCanvas, outputCanvas.width, 0);
-    outputContext.drawImage(layerCanvas, -outputCanvas.width, outputCanvas.height);
-    outputContext.drawImage(layerCanvas, 0, outputCanvas.height);
-    outputContext.drawImage(layerCanvas, outputCanvas.width, outputCanvas.height);
+    viewportContext.drawImage(layerCanvas, -viewportCanvas.width, -viewportCanvas.height);
+    viewportContext.drawImage(layerCanvas, 0, -viewportCanvas.height);
+    viewportContext.drawImage(layerCanvas, viewportCanvas.width, -viewportCanvas.height);
+    viewportContext.drawImage(layerCanvas, -viewportCanvas.width, 0);
+    viewportContext.drawImage(layerCanvas, 0, 0);
+    viewportContext.drawImage(layerCanvas, viewportCanvas.width, 0);
+    viewportContext.drawImage(layerCanvas, -viewportCanvas.width, viewportCanvas.height);
+    viewportContext.drawImage(layerCanvas, 0, viewportCanvas.height);
+    viewportContext.drawImage(layerCanvas, viewportCanvas.width, viewportCanvas.height);
     */
+  };
+
+  // Add the current contents of the tool canvas to the specified layer
+  this.updateTransientViewport = function () {
+
+    // Clear the output canvas
+    transientViewportContext.clearRect(0, 0, transientViewportCanvas.width, transientViewportCanvas.height);
+
+    // Calculate an aspectFactor such that we take a section of the source image such that it fits the dest viewport without scaling
+    var aspectFactor = transientWorkingCanvas.width / viewportCanvas.height;
+    // Helper calcs
+    var src = {
+      width: transientWorkingCanvas.width,
+      height: transientWorkingCanvas.height,
+      zoomedWidth: zoomTool.zoom * transientWorkingCanvas.width,
+      zoomedHeight: zoomTool.zoom * transientWorkingCanvas.height,
+    }
+
+    // Now duplicate the end result to get tiling
+    transientViewportContext.drawImage(transientWorkingCanvas,
+      -panTool.panX - src.width, -panTool.panY - src.height, src.zoomedWidth, src.zoomedHeight,
+      0, 0, src.width, src.height);
+    transientViewportContext.drawImage(transientWorkingCanvas,
+      -panTool.panX - src.width, -panTool.panY - 0, src.zoomedWidth, src.zoomedHeight,
+      0, 0, src.width, src.height);
+    transientViewportContext.drawImage(transientWorkingCanvas,
+      -panTool.panX - src.width, -panTool.panY + src.height, src.zoomedWidth, src.zoomedHeight,
+      0, 0, src.width, src.height);
+
+    transientViewportContext.drawImage(transientWorkingCanvas,
+      -panTool.panX - 0, -panTool.panY - src.height, src.zoomedWidth, src.zoomedHeight,
+      0, 0, src.width, src.height);
+    transientViewportContext.drawImage(transientWorkingCanvas,
+      -panTool.panX - 0, -panTool.panY - 0, src.zoomedWidth, src.zoomedHeight,
+      0, 0, src.width, src.height);
+    transientViewportContext.drawImage(transientWorkingCanvas,
+      -panTool.panX - 0, -panTool.panY + src.height, src.zoomedWidth, src.zoomedHeight,
+      0, 0, src.width, src.height);
+
+    transientViewportContext.drawImage(transientWorkingCanvas,
+      -panTool.panX + src.width, -panTool.panY - src.height, src.zoomedWidth, src.zoomedHeight,
+      0, 0, src.width, src.height);
+    transientViewportContext.drawImage(transientWorkingCanvas,
+      -panTool.panX + src.width, -panTool.panY - 0, src.zoomedWidth, src.zoomedHeight,
+      0, 0, src.width, src.height);
+    transientViewportContext.drawImage(transientWorkingCanvas,
+      -panTool.panX + src.width, -panTool.panY + src.height, src.zoomedWidth, src.zoomedHeight,
+      0, 0, src.width, src.height);
   };
 
   ///////////
@@ -161,62 +220,73 @@ var Renderer = function(bgImg)
 
     if (needsRedraw)
     {
-      theRenderer.doRender();
+      theRenderer.updateViewport();
     }
 
   }
 
   var init = function (bgImg) {
-    // Set up the canvas that holds the real overall image
-    {
-      workingCanvas = document.getElementById('background');
-      workingCanvas.width = bgImg.width;
-      workingCanvas.height = bgImg.height;
-      workingContext = workingCanvas.getContext("2d");
-      workingContext.drawImage(bgImg, 0, 0);
-    }
+
 
     // Set up the output canvas
     {
-      outputCanvas = document.getElementById('whiteBoard');
-      outputCanvas.width = 700;
-      outputCanvas.height = 400;
+      viewportCanvas = document.getElementById('whiteBoard');
+      viewportCanvas.width = 700;
+      viewportCanvas.height = 400;
       // Get the 2D canvas context.
-      outputContext = outputCanvas.getContext('2d');
+      viewportContext = viewportCanvas.getContext('2d');
     }
 
-    var container = outputCanvas.parentNode;
+    var container = viewportCanvas.parentNode;
 
-    // Add the temporary tool canvas.
+    // Add the 'immediate mode' output canvas.
     {
-      toolCanvas = document.createElement('canvas');
-      toolCanvas.id = 'toolCanvas';
-      toolCanvas.width = outputCanvas.width;
-      toolCanvas.height = outputCanvas.height;
-      toolContext = toolCanvas.getContext('2d');
-      container.appendChild(toolCanvas);
+      transientViewportCanvas = document.createElement('canvas');
+      transientViewportCanvas.id = 'transientViewportCanvas';
+      transientViewportCanvas.width = viewportCanvas.width;
+      transientViewportCanvas.height = viewportCanvas.height;
+      transientViewportContext = transientViewportCanvas.getContext('2d');
+      container.appendChild(transientViewportCanvas);
     }
 
-    // Add the layer canvases
+    // Set up the working canvas to hold the overall imagecanvas that holds the real overall image
+    {
+      //workingCanvas = document.getElementById('debugCanvas');
+      workingCanvas = document.createElement('canvas');
+      workingCanvas.width = bgImg.width;
+      workingCanvas.height = bgImg.height;
+      workingContext = workingCanvas.getContext("2d");
+      //workingContext.drawImage(bgImg, 0, 0);
+    }
+
+    // Add the layer canvases that hold the drawing for each layer
     {
       layerCanvas = document.createElement('canvas');
-      layerCanvas.id = 'layerCanvas';
-      layerCanvas.width = outputCanvas.width;
-      layerCanvas.height = outputCanvas.height;
+      layerCanvas.width = viewportCanvas.width;
+      layerCanvas.height = viewportCanvas.height;
       // Don't need to append because we don't need to see it
       //container.appendChild(layerCanvas);
 
       layerContext = layerCanvas.getContext('2d');
     }
 
+    // Set up the working canvas to hold the overall imagecanvas that holds the real overall image
+    {
+      transientWorkingCanvas = document.getElementById('debugCanvas');
+      //transientWorkingCanvas = document.createElement('canvas');
+      transientWorkingCanvas.width = bgImg.width;
+      transientWorkingCanvas.height = bgImg.height;
+      transientWorkingContext = transientWorkingCanvas.getContext("2d");
+    }
+
     // Attach the mousedown, mousemove and mouseup event listeners.
-    toolCanvas.addEventListener('mousedown', onMouse, false);
-    toolCanvas.addEventListener('mousemove', onMouse, false);
-    toolCanvas.addEventListener('mouseup', onMouse, false);
-    toolCanvas.addEventListener('mouseout', onMouse, false);
-    toolCanvas.addEventListener("wheel", onMouse, false);
+    transientViewportCanvas.addEventListener('mousedown', onMouse, false);
+    transientViewportCanvas.addEventListener('mousemove', onMouse, false);
+    transientViewportCanvas.addEventListener('mouseup', onMouse, false);
+    transientViewportCanvas.addEventListener('mouseout', onMouse, false);
+    transientViewportCanvas.addEventListener("wheel", onMouse, false);
     // Supress the context menu
-    toolCanvas.oncontextmenu = function () { return false; }
+    transientViewportCanvas.oncontextmenu = function () { return false; }
   };
 
   // Constructor
