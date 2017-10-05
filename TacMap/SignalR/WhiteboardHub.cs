@@ -8,11 +8,23 @@ using System.Data.SqlClient;
 
 namespace TacMap.SignalR
 {
+  /// <summary>
+  /// 
+  /// </summary>
   [HubName("whiteboardHub")]
   public class WhiteboardHub : Hub
   {
-    Dictionary<string, SqlConnection> sqlConnectionLookup = new Dictionary<string, SqlConnection>();
+    /// <summary>
+    /// 
+    /// </summary>
+    private Dictionary<string, SqlConnection> sqlConnectionLookup = new Dictionary<string, SqlConnection>();
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="conn"></param>
+    /// <param name="tableName"></param>
+    /// <returns></returns>
     private bool checkTableExists(SqlConnection conn, string tableName)
     {
       // https://stackoverflow.com/questions/464474/check-if-a-sql-table-exists
@@ -36,7 +48,12 @@ namespace TacMap.SignalR
       return exists;
     }
 
-    public SqlConnection EnsureDBConnection(string groupName)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="groupName"></param>
+    /// <returns></returns>
+    private SqlConnection ensureDBConnection(string groupName)
     {
       // Ensure that groupName is correctly formatted
       System.Text.RegularExpressions.Regex r = new System.Text.RegularExpressions.Regex("^[a-zA-Z0-9]*$");
@@ -83,10 +100,17 @@ namespace TacMap.SignalR
       return sqlConnectionLookup[groupName];
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public WhiteboardHub()
     {
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="groupName"></param>
     public void JoinGroup(string groupName)
     {
       System.Text.RegularExpressions.Regex r = new System.Text.RegularExpressions.Regex("^[a-zA-Z0-9]*$");
@@ -101,7 +125,7 @@ namespace TacMap.SignalR
       // Send all the history of drawn objects to the new client to make sure it's up to date.
       List<Backend.DrawItem> drawItems = new List<Backend.DrawItem>();
 
-      using (var sqlConnection = EnsureDBConnection(groupName))
+      using (var sqlConnection = ensureDBConnection(groupName))
       {
         sqlConnection.Open();
         string cmdString = "SELECT * FROM {0};";
@@ -129,11 +153,24 @@ namespace TacMap.SignalR
       // Consider having a seperate function for server historic data calls?
       Clients.Caller.HandleDraw(json, "<no session>", "Server");
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="groupName"></param>
     public void JoinChat(string name, string groupName)
     {
       Clients.Group(groupName).ChatJoined(name);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="drawObject"></param>
+    /// <param name="sessionId"></param>
+    /// <param name="groupName"></param>
+    /// <param name="name"></param>
     public void SendDraw(string drawObject, string sessionId, string groupName, string name)
     {
       // Ensure that groupName is correctly formatted
@@ -148,7 +185,7 @@ namespace TacMap.SignalR
       {
         if (di.DrawState == Backend.DrawItem.DrawStates.Completed)
         {
-          SqlConnection sqlCon = EnsureDBConnection(groupName);
+          SqlConnection sqlCon = ensureDBConnection(groupName);
           sqlCon.Open();
           var insertCommand = "INSERT INTO {0} (Tool, StartX, StartY, EndX, EndY) VALUES(@tool, @startX, @startY, @endX, @endY)";
           using (var cmd = new SqlCommand(String.Format(insertCommand, groupName), sqlCon))
@@ -168,6 +205,12 @@ namespace TacMap.SignalR
       Clients.Group(groupName).HandleDraw(drawObject, sessionId, name);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="message"></param>
+    /// <param name="groupName"></param>
+    /// <param name="name"></param>
     public void SendChat(string message, string groupName, string name)
     {
       Clients.Group(groupName).Chat(name, message);

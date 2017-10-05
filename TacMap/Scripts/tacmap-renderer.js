@@ -16,14 +16,17 @@ var renderer;
 var transientViewportCanvas, transientViewportContext, viewportCanvas, viewportContext, layerCanvas, layerContext;
 var workingCanvas, workingContext, transientWorkingCanvas, transientWorkingContext;
 
-var Renderer = function(bgImg)
+//---------------------------------------------------------------------------------------------------------------------
+var Renderer = function (bgImg)
 {
   ///////////
   // Public
   ///////////
 
+  //---------------------------------------------------------------------------------------------------------------------
   this.backgroundImage = bgImg;
 
+  //---------------------------------------------------------------------------------------------------------------------
   // Add the current contents of the tool canvas to the specified layer
   this.updateViewport = function() {
 
@@ -77,23 +80,9 @@ var Renderer = function(bgImg)
       -panTool.panX + src.width, -panTool.panY + src.height, src.zoomedWidth, src.zoomedHeight,
       0, 0, src.width, src.height);
 
-    /*
-    // copy the generated content (with tiling)
-    viewportContext.clearRect(-viewportCanvas.width, -viewportCanvas.height, viewportCanvas.width * 3, viewportCanvas.height * 3);
-    viewportContext.setTransform(1, 0, 0, 1, panTool.panX, panTool.panY);
-
-    viewportContext.drawImage(layerCanvas, -viewportCanvas.width, -viewportCanvas.height);
-    viewportContext.drawImage(layerCanvas, 0, -viewportCanvas.height);
-    viewportContext.drawImage(layerCanvas, viewportCanvas.width, -viewportCanvas.height);
-    viewportContext.drawImage(layerCanvas, -viewportCanvas.width, 0);
-    viewportContext.drawImage(layerCanvas, 0, 0);
-    viewportContext.drawImage(layerCanvas, viewportCanvas.width, 0);
-    viewportContext.drawImage(layerCanvas, -viewportCanvas.width, viewportCanvas.height);
-    viewportContext.drawImage(layerCanvas, 0, viewportCanvas.height);
-    viewportContext.drawImage(layerCanvas, viewportCanvas.width, viewportCanvas.height);
-    */
   };
 
+  //---------------------------------------------------------------------------------------------------------------------
   // Add the current contents of the tool canvas to the specified layer
   this.updateTransientViewport = function () {
 
@@ -145,10 +134,12 @@ var Renderer = function(bgImg)
   ///////////
   // Private
   ///////////
+  //---------------------------------------------------------------------------------------------------------------------
   // store 'this' so we can use it in the event handlers
   var theRenderer = this;
 
-  onMouse = function(ev) {
+  //---------------------------------------------------------------------------------------------------------------------
+  var onMouse = function (ev) {
     // Normalise the event
     {
       var iebody = (document.compatMode && document.compatMode != "BackCompat") ? document.documentElement : document.body
@@ -225,9 +216,8 @@ var Renderer = function(bgImg)
 
   }
 
+  //---------------------------------------------------------------------------------------------------------------------
   var init = function (bgImg) {
-
-
     // Set up the output canvas
     {
       viewportCanvas = document.getElementById('whiteBoard');

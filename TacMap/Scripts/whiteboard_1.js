@@ -11,6 +11,7 @@ var tool;
 
 var drawObjectsCollection = [];
 
+//---------------------------------------------------------------------------------------------------------------------
 function DrawIt(drawObject, syncServer) {
 
   if (drawObject.Tool == DrawTools.Line) {
@@ -136,6 +137,7 @@ function DrawIt(drawObject, syncServer) {
   }
 }
 
+//---------------------------------------------------------------------------------------------------------------------
 function DrawCreationTool(drawObject) {
   // TODO: Instead we should store a list of 'immediate mode objects' from all clients and then have a (60Hz?) interval to update it.
 
@@ -232,6 +234,7 @@ function DrawCreationTool(drawObject) {
   renderer.updateTransientViewport();
 }
 
+//---------------------------------------------------------------------------------------------------------------------
 function DrawTool(drawObject) {
 
   // TODO: Clear the transient canvas now we're comitting the shape to permanent. All fixed when reimplemented to store a list of transient shapes and redraw it when it changes.
@@ -340,13 +343,16 @@ function DrawTool(drawObject) {
   }
 }
 
+//---------------------------------------------------------------------------------------------------------------------
 function toggleBG1() {
   setTimeout(function () { $('#divShare').css("background-color", "silver"); toggleBG2() }, 800);
 }
+//---------------------------------------------------------------------------------------------------------------------
 function toggleBG2() {
   setTimeout(function () { $('#divShare').css("background-color", "#C8C8C8"); toggleBG1() }, 800);
 }
 
+//---------------------------------------------------------------------------------------------------------------------
 $(document).ready(function () {
 
   JoinHub();
@@ -374,6 +380,7 @@ $(document).ready(function () {
   });
 });
 
+//---------------------------------------------------------------------------------------------------------------------
 function SelectTool(toolName) {
   if (tools[toolName]) {
     tool = new tools[toolName]();
@@ -390,6 +397,7 @@ function SelectTool(toolName) {
 }
 
 
+//---------------------------------------------------------------------------------------------------------------------
 function ChangeIcons(toolName) {
 
   if (toolName == "line")
@@ -419,6 +427,7 @@ function ChangeIcons(toolName) {
     $("#imgtext").attr({ src: "/images/text_dim.png", border: "0px" });
 }
 
+//---------------------------------------------------------------------------------------------------------------------
 function JoinHub() {
 
 
