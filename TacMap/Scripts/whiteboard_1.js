@@ -25,7 +25,6 @@ function DrawCreationTool(drawObject) {
     ctx.moveTo(drawObject.StartX, drawObject.StartY);
     ctx.lineTo(drawObject.CurrentX, drawObject.CurrentY);
     ctx.stroke();
-    ctx.closePath();
   }
   else if (drawObject.Tool == DrawTools.Pencil) {
     // TODO - we apply the eraser and pencil immediately - the creation tool should be a chose of the brush used
