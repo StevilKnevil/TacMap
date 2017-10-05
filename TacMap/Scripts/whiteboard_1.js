@@ -45,9 +45,9 @@ function DrawCreationTool(drawObject) {
   }
   else if (drawObject.Tool == DrawTools.Rect) {
     var x = Math.min(drawObject.CurrentX, drawObject.StartX),
-            y = Math.min(drawObject.CurrentY, drawObject.StartY),
-            w = Math.abs(drawObject.CurrentX - drawObject.StartX),
-            h = Math.abs(drawObject.CurrentY - drawObject.StartY);
+        y = Math.min(drawObject.CurrentY, drawObject.StartY),
+        w = Math.abs(drawObject.CurrentX - drawObject.StartX),
+        h = Math.abs(drawObject.CurrentY - drawObject.StartY);
 
     if (!w || !h) {
       return;
