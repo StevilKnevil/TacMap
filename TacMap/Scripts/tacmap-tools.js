@@ -28,26 +28,26 @@ tools.pencil = function () {
   drawObject.Tool = DrawTools.Pencil;
   this.mousedown = function (ev) {
     tool.started = true;
-    drawObject.StartX = ev._x;
-    drawObject.StartY = ev._y;
+    drawObject.StartX = ev.canvasX;
+    drawObject.StartY = ev.canvasY;
   };
 
   this.mousemove = function (ev) {
     if (tool.started) {
-      drawObject.CurrentX = ev._x;
-      drawObject.CurrentY = ev._y;
+      drawObject.CurrentX = ev.canvasX;
+      drawObject.CurrentY = ev.canvasY;
       DrawTool(drawObject);
       // Store this point to start the next time
-      drawObject.StartX = ev._x;
-      drawObject.StartY = ev._y;
+      drawObject.StartX = ev.canvasX;
+      drawObject.StartY = ev.canvasY;
     }
   };
 
   // This is called when you release the mouse button.
   this.mouseup = function (ev) {
     if (tool.started) {
-      drawObject.CurrentX = ev._x;
-      drawObject.CurrentY = ev._y;
+      drawObject.CurrentX = ev.canvasX;
+      drawObject.CurrentY = ev.canvasY;
       DrawTool(drawObject);
       tool.started = false;
     }
@@ -104,8 +104,8 @@ tools.line = function () {
   this.started = false;
 
   this.mousedown = function (ev) {
-    drawObject.StartX = ev._x;
-    drawObject.StartY = ev._y;
+    drawObject.StartX = ev.canvasX;
+    drawObject.StartY = ev.canvasY;
     tool.started = true;
   };
 
@@ -113,15 +113,15 @@ tools.line = function () {
     if (!tool.started) {
       return;
     }
-    drawObject.CurrentX = ev._x;
-    drawObject.CurrentY = ev._y;
+    drawObject.CurrentX = ev.canvasX;
+    drawObject.CurrentY = ev.canvasY;
     DrawCreationTool(drawObject);
   };
 
   this.mouseup = function (ev) {
     if (tool.started) {
-      drawObject.CurrentX = ev._x;
-      drawObject.CurrentY = ev._y;
+      drawObject.CurrentX = ev.canvasX;
+      drawObject.CurrentY = ev.canvasY;
       DrawTool(drawObject);
       tool.started = false;
     }
@@ -138,8 +138,8 @@ tools.text = function () {
 
     if (!tool.started) {
       tool.started = true;
-      drawObject.StartX = ev._x;
-      drawObject.StartY = ev._y;
+      drawObject.StartX = ev.canvasX;
+      drawObject.StartY = ev.canvasY;
       var text_to_add = prompt('Enter the text:', ' ', 'Add Text');
       drawObject.Text = "";
       drawObject.Text = text_to_add;
@@ -178,21 +178,21 @@ tools.erase = function (ev) {
   drawObject.Tool = DrawTools.Erase;
   this.mousedown = function (ev) {
     tool.started = true;
-    drawObject.StartX = ev._x;
-    drawObject.StartX = ev._y;
+    drawObject.StartX = ev.canvasX;
+    drawObject.StartX = ev.canvasY;
   };
   this.mousemove = function (ev) {
     if (!tool.started) {
       // TODO draw the ghost outline of the brush as transient
       return;
     }
-    drawObject.StartX = ev._x;
-    drawObject.StartX = ev._y;
+    drawObject.StartX = ev.canvasX;
+    drawObject.StartX = ev.canvasY;
     DrawTool(drawObject);
   };
   this.mouseup = function (ev) {
-    drawObject.StartX = ev._x;
-    drawObject.StartX = ev._y;
+    drawObject.StartX = ev.canvasX;
+    drawObject.StartX = ev.canvasY;
     DrawTool(drawObject);
     tool.started = false;
   }
