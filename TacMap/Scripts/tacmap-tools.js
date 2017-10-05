@@ -148,7 +148,7 @@ tools.text = function () {
         return;
       }
 
-      DrawIt(drawObject, true);
+      DrawCreationTool(drawObject);
       tool.started = false;
       return true;
     }

@@ -61,7 +61,7 @@ function DrawCreationTool(drawObject) {
 }
 
 //---------------------------------------------------------------------------------------------------------------------
-function DrawTool(drawObject) {
+function DrawTool(drawObject, dontSyncToServer) {
 
   // TODO: Clear the transient canvas now we're comitting the shape to permanent. All fixed when reimplemented to store a list of transient shapes and redraw it when it changes.
 
@@ -113,6 +113,7 @@ function DrawTool(drawObject) {
 
   // Send the current state of the tool to the server so all clients can see it
   // Consider pencil: will we get message spam?
+  if (!dontSyncToServer)
   {
     drawObjectsCollection = [];
     drawObjectsCollection.push(drawObject);
@@ -229,7 +230,8 @@ function JoinHub() {
           $("#divStatus").html("<i>" + name + " drawing...</i>")
           var drawObjectCollection = jQuery.parseJSON(message)
           for (var i = 0; i < drawObjectCollection.length; i++) {
-            DrawIt(drawObjectCollection[i], false);
+            // Don't need to sync this to server, as it has come from the server
+            DrawTool(drawObjectCollection[i], true);
             if (drawObjectCollection[i].DrawState) {
               if (drawObjectCollection[i].DrawState == DrawStates.Completed) {
                 $("#divStatus").html("<i>" + name + " drawing completing...</i>")
