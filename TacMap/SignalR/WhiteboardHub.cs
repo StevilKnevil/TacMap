@@ -140,7 +140,6 @@ namespace TacMap.SignalR
             di.StartY = Convert.ToInt32(reader["StartY"]);
             di.CurrentX = Convert.ToInt32(reader["EndX"]);
             di.CurrentY = Convert.ToInt32(reader["EndY"]);
-            di.DrawState = Backend.DrawItem.DrawStates.Completed; // all data ion teh DB is completed (i.e. state 2)
 
             drawItems.Add(di);
           }
@@ -183,22 +182,19 @@ namespace TacMap.SignalR
       IList<Backend.DrawItem> diList = Backend.DrawItem.FromJson(drawObject);
       foreach(var di in diList)
       {
-        if (di.DrawState == Backend.DrawItem.DrawStates.Completed)
+        SqlConnection sqlCon = ensureDBConnection(groupName);
+        sqlCon.Open();
+        var insertCommand = "INSERT INTO {0} (Tool, StartX, StartY, EndX, EndY) VALUES(@tool, @startX, @startY, @endX, @endY)";
+        using (var cmd = new SqlCommand(String.Format(insertCommand, groupName), sqlCon))
         {
-          SqlConnection sqlCon = ensureDBConnection(groupName);
-          sqlCon.Open();
-          var insertCommand = "INSERT INTO {0} (Tool, StartX, StartY, EndX, EndY) VALUES(@tool, @startX, @startY, @endX, @endY)";
-          using (var cmd = new SqlCommand(String.Format(insertCommand, groupName), sqlCon))
-          {
-            cmd.Parameters.AddWithValue("@tool", di.Tool);
-            cmd.Parameters.AddWithValue("@startX", di.StartX);
-            cmd.Parameters.AddWithValue("@startY", di.StartY);
-            cmd.Parameters.AddWithValue("@endX", di.CurrentX);
-            cmd.Parameters.AddWithValue("@endY", di.CurrentY);
-            cmd.ExecuteNonQuery();
-          }
-          sqlCon.Close();
+          cmd.Parameters.AddWithValue("@tool", di.Tool);
+          cmd.Parameters.AddWithValue("@startX", di.StartX);
+          cmd.Parameters.AddWithValue("@startY", di.StartY);
+          cmd.Parameters.AddWithValue("@endX", di.CurrentX);
+          cmd.Parameters.AddWithValue("@endY", di.CurrentY);
+          cmd.ExecuteNonQuery();
         }
+        sqlCon.Close();
       }
 
       // Pass the string onto other clients

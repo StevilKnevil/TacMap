@@ -24,44 +24,32 @@ var tools = {};
 tools.pencil = function () {
   var tool = this;
   this.started = false;
-  drawObjectsCollection = [];
+  var drawObject = new DrawObject();
+  drawObject.Tool = DrawTools.Pencil;
   this.mousedown = function (ev) {
-    var drawObject = new DrawObject();
-    drawObject.Tool = DrawTools.Pencil;
     tool.started = true;
-    drawObject.DrawState = DrawStates.Started;
     drawObject.StartX = ev._x;
     drawObject.StartY = ev._y;
-    DrawIt(drawObject, true);
-    drawObjectsCollection.push(drawObject);
   };
 
   this.mousemove = function (ev) {
     if (tool.started) {
-      var drawObject = new DrawObject();
-      drawObject.Tool = DrawTools.Pencil;
-      drawObject.DrawState = DrawState.Inprogress;
       drawObject.CurrentX = ev._x;
       drawObject.CurrentY = ev._y;
-      DrawIt(drawObject, true);
-      drawObjectsCollection.push(drawObject);
+      DrawTool(drawObject);
+      // Store this point to start the next time
+      drawObject.StartX = ev._x;
+      drawObject.StartY = ev._y;
     }
   };
 
   // This is called when you release the mouse button.
   this.mouseup = function (ev) {
     if (tool.started) {
-      var drawObject = new DrawObject();
-      drawObject.Tool = DrawTools.Pencil;
-      tool.started = false;
-      drawObject.DrawState = DrawStates.Completed;
       drawObject.CurrentX = ev._x;
       drawObject.CurrentY = ev._y;
-      DrawIt(drawObject, true);
-      drawObjectsCollection.push(drawObject);
-      var message = JSON.stringify(drawObjectsCollection);
-      whiteboardHub.server.sendDraw(message, $("#sessinId").val(), $("#groupName").val(), $("#userName").val());
-
+      DrawTool(drawObject);
+      tool.started = false;
     }
   };
   /*
@@ -84,7 +72,6 @@ tools.rect = function () {
   this.started = false;
 
   this.mousedown = function (ev) {
-    drawObject.DrawState = DrawStates.Started;
     drawObject.StartX = ev.canvasX;
     drawObject.StartY = ev.canvasY;
     tool.started = true;
@@ -94,7 +81,6 @@ tools.rect = function () {
     if (!tool.started) {
       return;
     }
-    drawObject.DrawState = DrawStates.Inprogress;
     drawObject.CurrentX = ev.canvasX;
     drawObject.CurrentY = ev.canvasY;
     DrawCreationTool(drawObject);
@@ -102,7 +88,6 @@ tools.rect = function () {
 
   this.mouseup = function (ev) {
     if (tool.started) {
-      drawObject.DrawState = DrawStates.Completed;
       drawObject.CurrentX = ev.canvasX;
       drawObject.CurrentY = ev.canvasY;
       DrawTool(drawObject);
@@ -119,7 +104,6 @@ tools.line = function () {
   this.started = false;
 
   this.mousedown = function (ev) {
-    drawObject.DrawState = DrawStates.Started;
     drawObject.StartX = ev._x;
     drawObject.StartY = ev._y;
     tool.started = true;
@@ -129,18 +113,16 @@ tools.line = function () {
     if (!tool.started) {
       return;
     }
-    drawObject.DrawState = DrawStates.Inprogress;
     drawObject.CurrentX = ev._x;
     drawObject.CurrentY = ev._y;
-    DrawIt(drawObject, true);
+    DrawCreationTool(drawObject);
   };
 
   this.mouseup = function (ev) {
     if (tool.started) {
-      drawObject.DrawState = DrawStates.Completed;
       drawObject.CurrentX = ev._x;
       drawObject.CurrentY = ev._y;
-      DrawIt(drawObject, true);
+      DrawTool(drawObject);
       tool.started = false;
     }
   };
@@ -156,7 +138,6 @@ tools.text = function () {
 
     if (!tool.started) {
       tool.started = true;
-      drawObject.DrawState = DrawStates.Started;
       drawObject.StartX = ev._x;
       drawObject.StartY = ev._y;
       var text_to_add = prompt('Enter the text:', ' ', 'Add Text');
@@ -197,25 +178,22 @@ tools.erase = function (ev) {
   drawObject.Tool = DrawTools.Erase;
   this.mousedown = function (ev) {
     tool.started = true;
-    drawObject.DrawState = DrawStates.Started;
     drawObject.StartX = ev._x;
-    drawObject.StartY = ev._y;
-    DrawIt(drawObject, true);
+    drawObject.StartX = ev._y;
   };
   this.mousemove = function (ev) {
     if (!tool.started) {
+      // TODO draw the ghost outline of the brush as transient
       return;
     }
-    drawObject.DrawState = DrawStates.Inprogress;
-    drawObject.CurrentX = ev._x;
-    drawObject.CurrentY = ev._y;
-    DrawIt(drawObject, true);
+    drawObject.StartX = ev._x;
+    drawObject.StartX = ev._y;
+    DrawTool(drawObject);
   };
   this.mouseup = function (ev) {
-    drawObject.DrawState = DrawStates.Completed;
-    drawObject.CurrentX = ev._x;
-    drawObject.CurrentY = ev._y;
-    DrawIt(drawObject, true);
+    drawObject.StartX = ev._x;
+    drawObject.StartX = ev._y;
+    DrawTool(drawObject);
     tool.started = false;
   }
 };
