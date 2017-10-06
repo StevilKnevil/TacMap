@@ -36,7 +36,7 @@ tools.pencil = function () {
     if (tool.started) {
       drawObject.CurrentX = ev.canvasX;
       drawObject.CurrentY = ev.canvasY;
-      DrawTool(drawObject);
+      renderer.DrawToolToServer(drawObject);
       // Store this point to start the next time
       drawObject.StartX = ev.canvasX;
       drawObject.StartY = ev.canvasY;
@@ -48,7 +48,7 @@ tools.pencil = function () {
     if (tool.started) {
       drawObject.CurrentX = ev.canvasX;
       drawObject.CurrentY = ev.canvasY;
-      DrawTool(drawObject);
+      renderer.DrawToolToServer(drawObject);
       tool.started = false;
     }
   };
@@ -83,14 +83,14 @@ tools.rect = function () {
     }
     drawObject.CurrentX = ev.canvasX;
     drawObject.CurrentY = ev.canvasY;
-    DrawCreationTool(drawObject);
+    renderer.DrawCreationTool(drawObject);
   };
 
   this.mouseup = function (ev) {
     if (tool.started) {
       drawObject.CurrentX = ev.canvasX;
       drawObject.CurrentY = ev.canvasY;
-      DrawTool(drawObject);
+      renderer.DrawToolToServer(drawObject);
       tool.started = false;
     }
   };
@@ -115,14 +115,14 @@ tools.line = function () {
     }
     drawObject.CurrentX = ev.canvasX;
     drawObject.CurrentY = ev.canvasY;
-    DrawCreationTool(drawObject);
+    renderer.DrawCreationTool(drawObject);
   };
 
   this.mouseup = function (ev) {
     if (tool.started) {
       drawObject.CurrentX = ev.canvasX;
       drawObject.CurrentY = ev.canvasY;
-      DrawTool(drawObject);
+      renderer.DrawToolToServer(drawObject);
       tool.started = false;
     }
   };
@@ -148,7 +148,7 @@ tools.text = function () {
         return;
       }
 
-      DrawCreationTool(drawObject);
+      renderer.DrawCreationTool(drawObject);
       tool.started = false;
       return true;
     }
@@ -188,12 +188,12 @@ tools.erase = function (ev) {
     }
     drawObject.StartX = ev.canvasX;
     drawObject.StartX = ev.canvasY;
-    DrawTool(drawObject);
+    renderer.DrawToolToServer(drawObject);
   };
   this.mouseup = function (ev) {
     drawObject.StartX = ev.canvasX;
     drawObject.StartX = ev.canvasY;
-    DrawTool(drawObject);
+    renderer.DrawToolToServer(drawObject);
     tool.started = false;
   }
 };

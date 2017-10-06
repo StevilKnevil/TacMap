@@ -12,116 +12,6 @@ var tool;
 var drawObjectsCollection = [];
 
 //---------------------------------------------------------------------------------------------------------------------
-function DrawCreationTool(drawObject) {
-  // TODO: Instead we should store a list of 'immediate mode objects' from all clients and then have a (60Hz?) interval to update it.
-
-  // Clear the creation context first
-  transientWorkingContext.clearRect(0, 0, transientWorkingCanvas.width, transientWorkingCanvas.height);
-
-  var ctx = transientWorkingContext;
-
-  if (drawObject.Tool == DrawTools.Line) {
-    ctx.beginPath();
-    ctx.moveTo(drawObject.StartX, drawObject.StartY);
-    ctx.lineTo(drawObject.CurrentX, drawObject.CurrentY);
-    ctx.stroke();
-  }
-  else if (drawObject.Tool == DrawTools.Pencil) {
-    // TODO - we apply the eraser and pencil immediately - the creation tool should be a chose of the brush used
-  }
-  else if (drawObject.Tool == DrawTools.Text) {
-    ctx.clearRect(0, 0, transientViewportCanvas.width, transientViewportCanvas.height);
-    ctx.save();
-    ctx.font = 'normal 16px Calibri';
-    ctx.fillStyle = "blue";
-    ctx.textAlign = "left";
-    ctx.textBaseline = "bottom";
-    ctx.fillText(drawObject.Text, drawObject.StartX, drawObject.StartY);
-    ctx.restore();
-  }
-  else if (drawObject.Tool == DrawTools.Erase) {
-    // TODO - we apply the eraser and pencil immediately - the creation tool should be a chose of the brush used
-  }
-  else if (drawObject.Tool == DrawTools.Rect) {
-    var x = Math.min(drawObject.CurrentX, drawObject.StartX),
-        y = Math.min(drawObject.CurrentY, drawObject.StartY),
-        w = Math.abs(drawObject.CurrentX - drawObject.StartX),
-        h = Math.abs(drawObject.CurrentY - drawObject.StartY);
-
-    if (!w || !h) {
-      return;
-    }
-
-    ctx.strokeRect(x, y, w, h);
-  }
-
-  // update the output image
-  renderer.updateTransientViewport();
-}
-
-//---------------------------------------------------------------------------------------------------------------------
-function DrawTool(drawObject, dontSyncToServer) {
-
-  // TODO: Clear the transient canvas now we're comitting the shape to permanent. All fixed when reimplemented to store a list of transient shapes and redraw it when it changes.
-
-  var ctx = layerContext;
-
-  if (drawObject.Tool == DrawTools.Line) {
-    ctx.beginPath();
-    ctx.moveTo(drawObject.StartX, drawObject.StartY);
-    ctx.lineTo(drawObject.CurrentX, drawObject.CurrentY);
-    ctx.stroke();
-    ctx.closePath();
-  }
-  else if (drawObject.Tool == DrawTools.Pencil) {
-    ctx.beginPath();
-    ctx.moveTo(drawObject.StartX, drawObject.StartY);
-    ctx.lineTo(drawObject.CurrentX, drawObject.CurrentY);
-    ctx.strokeStyle = '#ff0000';
-    ctx.stroke();
-  }
-  else if (drawObject.Tool == DrawTools.Text) {
-    ctx.clearRect(0, 0, transientViewportCanvas.width, transientViewportCanvas.height);
-    ctx.save();
-    ctx.font = 'normal 16px Calibri';
-    ctx.fillStyle = "blue";
-    ctx.textAlign = "left";
-    ctx.textBaseline = "bottom";
-    ctx.fillText(drawObject.Text, drawObject.StartX, drawObject.StartY);
-    ctx.restore();
-  }
-  else if (drawObject.Tool == DrawTools.Erase) {
-    transientViewportContext.fillStyle = "#FFFFFF";
-    transientViewportContext.fillRect(drawObject.StartX, drawObject.StartY, 10, 10);
-    transientViewportContext.restore();
-  }
-  else if (drawObject.Tool == DrawTools.Rect) {
-    var x = Math.min(drawObject.CurrentX, drawObject.StartX),
-            y = Math.min(drawObject.CurrentY, drawObject.StartY),
-            w = Math.abs(drawObject.CurrentX - drawObject.StartX),
-            h = Math.abs(drawObject.CurrentY - drawObject.StartY);
-
-    if (!w || !h) {
-      return;
-    }
-    ctx.strokeRect(x, y, w, h);
-  }
-
-  // update the output image
-  renderer.updateViewport();
-
-  // Send the current state of the tool to the server so all clients can see it
-  // Consider pencil: will we get message spam?
-  if (!dontSyncToServer)
-  {
-    drawObjectsCollection = [];
-    drawObjectsCollection.push(drawObject);
-    var message = JSON.stringify(drawObjectsCollection);
-    whiteboardHub.server.sendDraw(message, $("#sessinId").val(), $("#groupName").val(), $("#userName").val());
-  }
-}
-
-//---------------------------------------------------------------------------------------------------------------------
 function toggleBG1() {
   setTimeout(function () { $('#divShare').css("background-color", "silver"); toggleBG2() }, 800);
 }
@@ -230,7 +120,7 @@ function JoinHub() {
           var drawObjectCollection = jQuery.parseJSON(message)
           for (var i = 0; i < drawObjectCollection.length; i++) {
             // Don't need to sync this to server, as it has come from the server
-            DrawTool(drawObjectCollection[i], true);
+            renderer.DrawTool(drawObjectCollection[i]);
             if (drawObjectCollection[i].DrawState) {
               if (drawObjectCollection[i].DrawState == DrawStates.Completed) {
                 $("#divStatus").html("<i>" + name + " drawing completing...</i>")

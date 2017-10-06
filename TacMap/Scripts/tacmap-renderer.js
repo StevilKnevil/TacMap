@@ -131,6 +131,111 @@ var Renderer = function (bgImg)
       0, 0, src.width, src.height);
   };
 
+  //---------------------------------------------------------------------------------------------------------------------
+  this.DrawCreationTool = function (drawObject) {
+    // TODO: Instead we should store a list of 'immediate mode objects' from all clients and then have a (60Hz?) interval to update it.
+
+    // Clear the creation context first
+    transientWorkingContext.clearRect(0, 0, transientWorkingCanvas.width, transientWorkingCanvas.height);
+
+    var ctx = transientWorkingContext;
+
+    if (drawObject.Tool == DrawTools.Line) {
+      drawLine(drawObject, ctx);
+    }
+    else if (drawObject.Tool == DrawTools.Pencil) {
+      // TODO - we apply the eraser and pencil immediately - the creation tool should be a chose of the brush used
+    }
+    else if (drawObject.Tool == DrawTools.Text) {
+      ctx.clearRect(0, 0, transientViewportCanvas.width, transientViewportCanvas.height);
+      ctx.save();
+      ctx.font = 'normal 16px Calibri';
+      ctx.fillStyle = "blue";
+      ctx.textAlign = "left";
+      ctx.textBaseline = "bottom";
+      ctx.fillText(drawObject.Text, drawObject.StartX, drawObject.StartY);
+      ctx.restore();
+    }
+    else if (drawObject.Tool == DrawTools.Erase) {
+      // TODO - we apply the eraser and pencil immediately - the creation tool should be a chose of the brush used
+    }
+    else if (drawObject.Tool == DrawTools.Rect) {
+      var x = Math.min(drawObject.CurrentX, drawObject.StartX),
+          y = Math.min(drawObject.CurrentY, drawObject.StartY),
+          w = Math.abs(drawObject.CurrentX - drawObject.StartX),
+          h = Math.abs(drawObject.CurrentY - drawObject.StartY);
+
+      if (!w || !h) {
+        return;
+      }
+
+      ctx.strokeRect(x, y, w, h);
+    }
+
+    // update the output image
+    renderer.updateTransientViewport();
+  }
+
+  //---------------------------------------------------------------------------------------------------------------------
+  this.DrawTool = function (drawObject) {
+
+    // TODO: Clear the transient canvas now we're comitting the shape to permanent. All fixed when reimplemented to store a list of transient shapes and redraw it when it changes.
+
+    var ctx = layerContext;
+
+    if (drawObject.Tool == DrawTools.Line) {
+      drawLine(drawObject, ctx);
+    }
+    else if (drawObject.Tool == DrawTools.Pencil) {
+      ctx.beginPath();
+      ctx.moveTo(drawObject.StartX, drawObject.StartY);
+      ctx.lineTo(drawObject.CurrentX, drawObject.CurrentY);
+      ctx.strokeStyle = '#ff0000';
+      ctx.stroke();
+    }
+    else if (drawObject.Tool == DrawTools.Text) {
+      ctx.clearRect(0, 0, transientViewportCanvas.width, transientViewportCanvas.height);
+      ctx.save();
+      ctx.font = 'normal 16px Calibri';
+      ctx.fillStyle = "blue";
+      ctx.textAlign = "left";
+      ctx.textBaseline = "bottom";
+      ctx.fillText(drawObject.Text, drawObject.StartX, drawObject.StartY);
+      ctx.restore();
+    }
+    else if (drawObject.Tool == DrawTools.Erase) {
+      ctx.fillStyle = "#FFFFFF";
+      ctx.fillRect(drawObject.StartX, drawObject.StartY, 10, 10);
+      ctx.restore();
+    }
+    else if (drawObject.Tool == DrawTools.Rect) {
+      var x = Math.min(drawObject.CurrentX, drawObject.StartX),
+              y = Math.min(drawObject.CurrentY, drawObject.StartY),
+              w = Math.abs(drawObject.CurrentX - drawObject.StartX),
+              h = Math.abs(drawObject.CurrentY - drawObject.StartY);
+
+      if (!w || !h) {
+        return;
+      }
+      ctx.strokeRect(x, y, w, h);
+    }
+
+    // update the output image
+    renderer.updateViewport();
+  }
+
+  //---------------------------------------------------------------------------------------------------------------------
+  this.DrawToolToServer = function (drawObject) {
+    theRenderer.DrawTool(drawObject);
+
+    // Send the current state of the tool to the server so all clients can see it
+    // Consider pencil: will we get message spam?
+    drawObjectsCollection = [];
+    drawObjectsCollection.push(drawObject);
+    var message = JSON.stringify(drawObjectsCollection);
+    whiteboardHub.server.sendDraw(message, $("#sessinId").val(), $("#groupName").val(), $("#userName").val());
+  }
+
   ///////////
   // Private
   ///////////
@@ -252,8 +357,8 @@ var Renderer = function (bgImg)
     // Add the layer canvases that hold the drawing for each layer
     {
       layerCanvas = document.createElement('canvas');
-      layerCanvas.width = viewportCanvas.width;
-      layerCanvas.height = viewportCanvas.height;
+      layerCanvas.width = workingCanvas.width;
+      layerCanvas.height = workingCanvas.height;
       // Don't need to append because we don't need to see it
       //container.appendChild(layerCanvas);
 
@@ -279,6 +384,38 @@ var Renderer = function (bgImg)
     transientViewportCanvas.oncontextmenu = function () { return false; }
   };
 
-  // Constructor
+  var drawLine = function (drawObject, ctx) {
+    var w = ctx.canvas.width;
+    var h = ctx.canvas.height;
+
+    ctx.save();
+
+    ctx.beginPath();
+    ctx.moveTo(drawObject.StartX - w, drawObject.StartY - h);
+    ctx.lineTo(drawObject.CurrentX - w, drawObject.CurrentY - h);
+    ctx.moveTo(drawObject.StartX, drawObject.StartY - h);
+    ctx.lineTo(drawObject.CurrentX, drawObject.CurrentY - h);
+    ctx.moveTo(drawObject.StartX + w, drawObject.StartY - h);
+    ctx.lineTo(drawObject.CurrentX + w, drawObject.CurrentY - h);
+
+    ctx.moveTo(drawObject.StartX - w, drawObject.StartY - 0);
+    ctx.lineTo(drawObject.CurrentX - w, drawObject.CurrentY - 0);
+    ctx.moveTo(drawObject.StartX, drawObject.StartY - 0);
+    ctx.lineTo(drawObject.CurrentX, drawObject.CurrentY - 0);
+    ctx.moveTo(drawObject.StartX + w, drawObject.StartY - 0);
+    ctx.lineTo(drawObject.CurrentX + w, drawObject.CurrentY - 0);
+
+    ctx.moveTo(drawObject.StartX - w, drawObject.StartY + h);
+    ctx.lineTo(drawObject.CurrentX - w, drawObject.CurrentY + h);
+    ctx.moveTo(drawObject.StartX, drawObject.StartY + h);
+    ctx.lineTo(drawObject.CurrentX, drawObject.CurrentY + h);
+    ctx.moveTo(drawObject.StartX + w, drawObject.StartY + h);
+    ctx.lineTo(drawObject.CurrentX + w, drawObject.CurrentY + h);
+    ctx.stroke();
+
+    ctx.restore();
+  };
+
+  // Invoke the initialisation
   init(bgImg);
 }
