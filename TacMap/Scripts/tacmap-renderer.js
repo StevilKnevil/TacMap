@@ -139,38 +139,47 @@ var Renderer = function (bgImg)
     transientWorkingContext.clearRect(0, 0, transientWorkingCanvas.width, transientWorkingCanvas.height);
 
     var ctx = transientWorkingContext;
+    ctx.save();
 
     if (drawObject.Tool == DrawTools.Line) {
-      drawLine(drawObject, ctx);
+      ctx.beginPath();
+      drawTiled(function () {
+        ctx.moveTo(drawObject.StartX, drawObject.StartY);
+        ctx.lineTo(drawObject.CurrentX, drawObject.CurrentY);
+      }, ctx);
+      ctx.stroke();
     }
     else if (drawObject.Tool == DrawTools.Pencil) {
       // TODO - we apply the eraser and pencil immediately - the creation tool should be a chose of the brush used
     }
     else if (drawObject.Tool == DrawTools.Text) {
-      ctx.clearRect(0, 0, transientViewportCanvas.width, transientViewportCanvas.height);
-      ctx.save();
       ctx.font = 'normal 16px Calibri';
       ctx.fillStyle = "blue";
       ctx.textAlign = "left";
       ctx.textBaseline = "bottom";
-      ctx.fillText(drawObject.Text, drawObject.StartX, drawObject.StartY);
-      ctx.restore();
+      drawTiled(function () {
+        ctx.fillText(drawObject.Text, drawObject.StartX, drawObject.StartY);
+      }, ctx);
     }
     else if (drawObject.Tool == DrawTools.Erase) {
       // TODO - we apply the eraser and pencil immediately - the creation tool should be a chose of the brush used
     }
     else if (drawObject.Tool == DrawTools.Rect) {
-      var x = Math.min(drawObject.CurrentX, drawObject.StartX),
-          y = Math.min(drawObject.CurrentY, drawObject.StartY),
-          w = Math.abs(drawObject.CurrentX - drawObject.StartX),
-          h = Math.abs(drawObject.CurrentY - drawObject.StartY);
+      var x = Math.min(drawObject.CurrentX, drawObject.StartX);
+      var y = Math.min(drawObject.CurrentY, drawObject.StartY);
+      var w = Math.abs(drawObject.CurrentX - drawObject.StartX);
+      var h = Math.abs(drawObject.CurrentY - drawObject.StartY);
 
       if (!w || !h) {
         return;
       }
 
-      ctx.strokeRect(x, y, w, h);
+      drawTiled(function () {
+        ctx.strokeRect(x, y, w, h);
+      }, ctx);
     }
+
+    ctx.restore();
 
     // update the output image
     renderer.updateTransientViewport();
@@ -182,43 +191,57 @@ var Renderer = function (bgImg)
     // TODO: Clear the transient canvas now we're comitting the shape to permanent. All fixed when reimplemented to store a list of transient shapes and redraw it when it changes.
 
     var ctx = layerContext;
+    ctx.save();
 
     if (drawObject.Tool == DrawTools.Line) {
-      drawLine(drawObject, ctx);
+      ctx.beginPath();
+      drawTiled(function () {
+        ctx.moveTo(drawObject.StartX, drawObject.StartY);
+        ctx.lineTo(drawObject.CurrentX, drawObject.CurrentY);
+      }, ctx);
+      ctx.stroke();
     }
     else if (drawObject.Tool == DrawTools.Pencil) {
       ctx.beginPath();
-      ctx.moveTo(drawObject.StartX, drawObject.StartY);
-      ctx.lineTo(drawObject.CurrentX, drawObject.CurrentY);
       ctx.strokeStyle = '#ff0000';
+      drawTiled(function () {
+        ctx.moveTo(drawObject.StartX, drawObject.StartY);
+        ctx.lineTo(drawObject.CurrentX, drawObject.CurrentY);
+      }, ctx);
       ctx.stroke();
     }
     else if (drawObject.Tool == DrawTools.Text) {
-      ctx.clearRect(0, 0, transientViewportCanvas.width, transientViewportCanvas.height);
-      ctx.save();
       ctx.font = 'normal 16px Calibri';
       ctx.fillStyle = "blue";
       ctx.textAlign = "left";
       ctx.textBaseline = "bottom";
-      ctx.fillText(drawObject.Text, drawObject.StartX, drawObject.StartY);
-      ctx.restore();
+      drawTiled(function () {
+        ctx.fillText(drawObject.Text, drawObject.StartX, drawObject.StartY);
+      }, ctx);
     }
     else if (drawObject.Tool == DrawTools.Erase) {
       ctx.fillStyle = "#FFFFFF";
-      ctx.fillRect(drawObject.StartX, drawObject.StartY, 10, 10);
-      ctx.restore();
+      var drawFn = function () {
+        ctx.fillRect(drawObject.StartX, drawObject.StartY, 10, 10);
+      }
+      drawTiled(drawFn, ctx);
     }
     else if (drawObject.Tool == DrawTools.Rect) {
-      var x = Math.min(drawObject.CurrentX, drawObject.StartX),
-              y = Math.min(drawObject.CurrentY, drawObject.StartY),
-              w = Math.abs(drawObject.CurrentX - drawObject.StartX),
-              h = Math.abs(drawObject.CurrentY - drawObject.StartY);
+      var x = Math.min(drawObject.CurrentX, drawObject.StartX);
+      var y = Math.min(drawObject.CurrentY, drawObject.StartY);
+      var w = Math.abs(drawObject.CurrentX - drawObject.StartX);
+      var h = Math.abs(drawObject.CurrentY - drawObject.StartY);
 
       if (!w || !h) {
         return;
       }
-      ctx.strokeRect(x, y, w, h);
+
+      drawTiled(function () {
+        ctx.strokeRect(x, y, w, h);
+      }, ctx);
     }
+
+    ctx.restore();
 
     // update the output image
     renderer.updateViewport();
@@ -384,36 +407,27 @@ var Renderer = function (bgImg)
     transientViewportCanvas.oncontextmenu = function () { return false; }
   };
 
-  var drawLine = function (drawObject, ctx) {
-    var w = ctx.canvas.width;
-    var h = ctx.canvas.height;
-
-    ctx.save();
-
-    ctx.beginPath();
-    ctx.moveTo(drawObject.StartX - w, drawObject.StartY - h);
-    ctx.lineTo(drawObject.CurrentX - w, drawObject.CurrentY - h);
-    ctx.moveTo(drawObject.StartX, drawObject.StartY - h);
-    ctx.lineTo(drawObject.CurrentX, drawObject.CurrentY - h);
-    ctx.moveTo(drawObject.StartX + w, drawObject.StartY - h);
-    ctx.lineTo(drawObject.CurrentX + w, drawObject.CurrentY - h);
-
-    ctx.moveTo(drawObject.StartX - w, drawObject.StartY - 0);
-    ctx.lineTo(drawObject.CurrentX - w, drawObject.CurrentY - 0);
-    ctx.moveTo(drawObject.StartX, drawObject.StartY - 0);
-    ctx.lineTo(drawObject.CurrentX, drawObject.CurrentY - 0);
-    ctx.moveTo(drawObject.StartX + w, drawObject.StartY - 0);
-    ctx.lineTo(drawObject.CurrentX + w, drawObject.CurrentY - 0);
-
-    ctx.moveTo(drawObject.StartX - w, drawObject.StartY + h);
-    ctx.lineTo(drawObject.CurrentX - w, drawObject.CurrentY + h);
-    ctx.moveTo(drawObject.StartX, drawObject.StartY + h);
-    ctx.lineTo(drawObject.CurrentX, drawObject.CurrentY + h);
-    ctx.moveTo(drawObject.StartX + w, drawObject.StartY + h);
-    ctx.lineTo(drawObject.CurrentX + w, drawObject.CurrentY + h);
-    ctx.stroke();
-
-    ctx.restore();
+  var drawTiled = function (drawingFunc, ctx) {
+    var width = ctx.canvas.width;
+    var height = ctx.canvas.height;
+    ctx.translate(-width, -height);
+    drawingFunc();
+    ctx.translate(width, 0);
+    drawingFunc();
+    ctx.translate(width, 0);
+    drawingFunc();
+    ctx.translate(-2 * width, height);
+    drawingFunc();
+    ctx.translate(width, 0);
+    drawingFunc();
+    ctx.translate(width, 0);
+    drawingFunc();
+    ctx.translate(-2 * width, height);
+    drawingFunc();
+    ctx.translate(width, 0);
+    drawingFunc();
+    ctx.translate(width, 0);
+    drawingFunc();
   };
 
   // Invoke the initialisation
