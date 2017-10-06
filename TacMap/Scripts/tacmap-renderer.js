@@ -220,11 +220,11 @@ var Renderer = function (bgImg)
       }, ctx);
     }
     else if (drawObject.Tool == DrawTools.Erase) {
-      ctx.fillStyle = "#FFFFFF";
-      var drawFn = function () {
+      ctx.fillStyle = "rgba(0,0,0,1)";
+      ctx.globalCompositeOperation = "destination-out";
+      drawTiled(function () {
         ctx.fillRect(drawObject.StartX, drawObject.StartY, 10, 10);
-      }
-      drawTiled(drawFn, ctx);
+      }, ctx);
     }
     else if (drawObject.Tool == DrawTools.Rect) {
       var x = Math.min(drawObject.CurrentX, drawObject.StartX);

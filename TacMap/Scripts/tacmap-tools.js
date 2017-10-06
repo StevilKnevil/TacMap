@@ -179,7 +179,7 @@ tools.erase = function (ev) {
   this.mousedown = function (ev) {
     tool.started = true;
     drawObject.StartX = ev.canvasX;
-    drawObject.StartX = ev.canvasY;
+    drawObject.StartY = ev.canvasY;
   };
   this.mousemove = function (ev) {
     if (!tool.started) {
@@ -187,12 +187,12 @@ tools.erase = function (ev) {
       return;
     }
     drawObject.StartX = ev.canvasX;
-    drawObject.StartX = ev.canvasY;
+    drawObject.StartY = ev.canvasY;
     renderer.DrawToolToServer(drawObject);
   };
   this.mouseup = function (ev) {
     drawObject.StartX = ev.canvasX;
-    drawObject.StartX = ev.canvasY;
+    drawObject.StartY = ev.canvasY;
     renderer.DrawToolToServer(drawObject);
     tool.started = false;
   }
@@ -243,7 +243,7 @@ tools.zoom = function (ev) {
 
   this.wheel = function (ev) {
     var zoomSpeed = 10;
-    this.zoom += ev.wheelDelta / (120 * zoomSpeed);
+    this.zoom -= ev.wheelDelta / (120 * zoomSpeed);
     // Clamp
     var minZoom = 0.1;
     var maxZoom = 10;
