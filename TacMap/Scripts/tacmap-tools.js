@@ -243,6 +243,7 @@ tools.zoom = function (ev) {
 
   this.wheel = function (ev) {
     var zoomSpeed = 10;
+    var oldZoom = this.zoom;
     this.zoom -= ev.wheelDelta / (120 * zoomSpeed);
     // Clamp
     var minZoom = 0.1;
@@ -251,7 +252,8 @@ tools.zoom = function (ev) {
     // This is dependent on client canvas size
     this.zoom = Math.min(maxZoom, Math.max(minZoom, this.zoom));
     // Adjust the pan so that we zoom around centre of view
-
+    panTool.panX += (ev._x * (this.zoom - oldZoom))
+    panTool.panY += (ev._y * (this.zoom - oldZoom))
     return true;
   };
 };
