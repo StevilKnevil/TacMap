@@ -192,6 +192,8 @@
     <Content Include="Images\line_dim.png" />
     <Content Include="Images\oval.png" />
     <Content Include="Images\oval_dim.png" />
+    <Content Include="Images\pan.png" />
+    <Content Include="Images\pan_dim.png" />
     <Content Include="Images\pencil.png" />
     <Content Include="Images\pencil_dim.png" />
     <Content Include="Images\rect.png" />
@@ -200,6 +202,8 @@
     <Content Include="Images\text.png" />
     <Content Include="Images\text_dim.png" />
     <Content Include="Images\whiteboardlogo.png" />
+    <Content Include="Images\zoom.png" />
+    <Content Include="Images\zoom_dim.png" />
     <Content Include="Scripts\jquery-1.6.4-vsdoc.js" />
     <Content Include="Scripts\jquery-1.6.4.js" />
     <Content Include="Scripts\jquery-1.6.4.min.js" />
