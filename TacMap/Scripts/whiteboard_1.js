@@ -50,7 +50,17 @@ $(document).ready(function () {
 
 //---------------------------------------------------------------------------------------------------------------------
 function SelectTool(toolName) {
-  if (tools[toolName]) {
+  if (toolName == "pan")
+  {
+    tool = panTool;
+  }
+  else if (toolName == "zoom") {
+    tool = zoomTool;
+  }
+  else if (toolName == "erase") {
+    tool = eraseTool;
+  }
+  else if (tools[toolName]) {
     tool = new tools[toolName]();
   }
 
@@ -60,6 +70,10 @@ function SelectTool(toolName) {
     viewportCanvas.style.cursor = "default";
   else if (toolName == "text")
     viewportCanvas.style.cursor = "text";
+  else if (toolName == "pan")
+    viewportCanvas.style.cursor = "move";
+  else if (toolName == "zoom")
+    viewportCanvas.style.cursor = "nw-resize";
 
   ChangeIcons(toolName);
 }
@@ -88,6 +102,15 @@ function ChangeIcons(toolName) {
   else
     $("#imgerase").attr({ src: "/images/erase_dim.png", border: "0px" });
 
+  if (toolName == "pan")
+    $("#imgpan").attr({ src: "/images/pan.png", border: "1px" });
+  else
+    $("#imgpan").attr({ src: "/images/pan_dim.png", border: "0px" });
+
+  if (toolName == "zoom")
+    $("#imgzoom").attr({ src: "/images/zoom.png", border: "1px" });
+  else
+    $("#imgzoom").attr({ src: "/images/zoom_dim.png", border: "0px" });
 
   if (toolName == "text")
     $("#imgtext").attr({ src: "/images/text.png", border: "1px" });

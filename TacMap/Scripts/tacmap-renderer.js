@@ -307,7 +307,7 @@ var Renderer = function (bgImg)
       var func = tool[ev.type];
 
       if (func) {
-        func(ev);
+        needsRedraw |= func(ev);
       }
     }
 
