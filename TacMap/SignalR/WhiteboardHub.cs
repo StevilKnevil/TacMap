@@ -82,7 +82,9 @@ namespace TacMap.SignalR
                 "[StartX] SMALLINT NOT NULL, " +
                 "[StartY] SMALLINT NOT NULL, " +
                 "[EndX] SMALLINT NOT NULL, " +
-                "[EndY] SMALLINT NOT NULL" +
+                "[EndY] SMALLINT NOT NULL," +
+                "[Col] INT NOT NULL," +
+                "[Size] TINYINT NOT NULL" +
                 ");";
             using (var createCommand = new SqlCommand(String.Format(createCommandStr, groupName)))
             {
@@ -140,6 +142,8 @@ namespace TacMap.SignalR
             di.StartY = Convert.ToInt32(reader["StartY"]);
             di.CurrentX = Convert.ToInt32(reader["EndX"]);
             di.CurrentY = Convert.ToInt32(reader["EndY"]);
+            di.Col = System.Drawing.Color.FromArgb(Convert.ToInt32(reader["Col"]));
+            di.Size = Convert.ToInt32(reader["Size"]);
 
             drawItems.Add(di);
           }
@@ -184,7 +188,7 @@ namespace TacMap.SignalR
       {
         SqlConnection sqlCon = ensureDBConnection(groupName);
         sqlCon.Open();
-        var insertCommand = "INSERT INTO {0} (Tool, StartX, StartY, EndX, EndY) VALUES(@tool, @startX, @startY, @endX, @endY)";
+        var insertCommand = "INSERT INTO {0} (Tool, StartX, StartY, EndX, EndY, Col, Size) VALUES(@tool, @startX, @startY, @endX, @endY, @col, @size)";
         using (var cmd = new SqlCommand(String.Format(insertCommand, groupName), sqlCon))
         {
           cmd.Parameters.AddWithValue("@tool", di.Tool);
@@ -192,6 +196,9 @@ namespace TacMap.SignalR
           cmd.Parameters.AddWithValue("@startY", di.StartY);
           cmd.Parameters.AddWithValue("@endX", di.CurrentX);
           cmd.Parameters.AddWithValue("@endY", di.CurrentY);
+          cmd.Parameters.AddWithValue("@col", di.Col.ToArgb());
+          cmd.Parameters.AddWithValue("@size", di.Size);
+
           cmd.ExecuteNonQuery();
         }
         sqlCon.Close();
