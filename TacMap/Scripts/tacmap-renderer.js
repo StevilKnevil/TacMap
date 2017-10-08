@@ -391,12 +391,14 @@ var Renderer = function (bgImg)
 
     // Set up the working canvas to hold the overall imagecanvas that holds the real overall image
     {
-      workingCanvas = document.getElementById('debugCanvas');
-      //workingCanvas = document.createElement('canvas');
+      workingCanvas = document.createElement('canvas');
       workingCanvas.width = bgImg.width;
       workingCanvas.height = bgImg.height;
       workingContext = workingCanvas.getContext("2d");
-      //workingContext.drawImage(bgImg, 0, 0);
+
+      // Append, but hide the canvas so we can use it for debugging if we need to
+      workingCanvas.style = "display:none";
+      container.appendChild(workingCanvas);
     }
 
     // Add the layer canvases that hold the drawing for each layer
@@ -404,15 +406,15 @@ var Renderer = function (bgImg)
       layerCanvas = document.createElement('canvas');
       layerCanvas.width = workingCanvas.width;
       layerCanvas.height = workingCanvas.height;
-      // Don't need to append because we don't need to see it
-      //container.appendChild(layerCanvas);
-
       layerContext = layerCanvas.getContext('2d');
+
+      // Append, but hide the canvas so we can use it for debugging if we need to
+      layerCanvas.style = "display:none";
+      container.appendChild(layerCanvas);
     }
 
     // Set up the working canvas to hold the overall imagecanvas that holds the real overall image
     {
-      //transientWorkingCanvas = document.getElementById('debugCanvas');
       transientWorkingCanvas = document.createElement('canvas');
       transientWorkingCanvas.width = bgImg.width;
       transientWorkingCanvas.height = bgImg.height;
