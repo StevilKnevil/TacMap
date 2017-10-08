@@ -367,14 +367,22 @@ var Renderer = function (bgImg)
   }
 
   //---------------------------------------------------------------------------------------------------------------------
+  var doResize = function(){
+    var container = document.getElementById('container');
+    viewportCanvas.width = container.offsetWidth;
+    viewportCanvas.height = container.offsetHeight;
+    transientViewportCanvas.width = viewportCanvas.width;
+    transientViewportCanvas.height = viewportCanvas.height;
+    theRenderer.updateViewport();
+  }
+
+  //---------------------------------------------------------------------------------------------------------------------
   var init = function (bgImg) {
     var container = document.getElementById('container');
 
     // Set up the output canvas
     {
       viewportCanvas = document.getElementById('whiteBoard');
-      viewportCanvas.width = container.offsetWidth;
-      viewportCanvas.height = container.offsetHeight;
       // Get the 2D canvas context.
       viewportContext = viewportCanvas.getContext('2d');
     }
@@ -383,8 +391,6 @@ var Renderer = function (bgImg)
     {
       transientViewportCanvas = document.createElement('canvas');
       transientViewportCanvas.id = 'transientViewportCanvas';
-      transientViewportCanvas.width = viewportCanvas.width;
-      transientViewportCanvas.height = viewportCanvas.height;
       transientViewportContext = transientViewportCanvas.getContext('2d');
       container.appendChild(transientViewportCanvas);
     }
@@ -416,8 +422,8 @@ var Renderer = function (bgImg)
     // Set up the working canvas to hold the overall imagecanvas that holds the real overall image
     {
       transientWorkingCanvas = document.createElement('canvas');
-      transientWorkingCanvas.width = bgImg.width;
-      transientWorkingCanvas.height = bgImg.height;
+      transientWorkingCanvas.width = workingCanvas.width;
+      transientWorkingCanvas.height = workingCanvas.height;
       transientWorkingContext = transientWorkingCanvas.getContext("2d");
     }
 
@@ -429,6 +435,11 @@ var Renderer = function (bgImg)
     transientViewportCanvas.addEventListener("wheel", onMouse, false);
     // Supress the context menu
     transientViewportCanvas.oncontextmenu = function () { return false; }
+
+    window.addEventListener("resize", doResize, false);
+
+    doResize();
+    
   };
 
   var drawTiled = function (drawingFunc, ctx) {
