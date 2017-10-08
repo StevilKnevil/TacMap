@@ -230,6 +230,8 @@ tools.pan = function (ev) {
     tool.panX += ev.movementX * zoomTool.zoom;
     tool.panY += ev.movementY * zoomTool.zoom;
 
+    /*
+    // TODO: reimplement in the correct coordinate system
     if (tool.panX > renderer.backgroundImage.width)
       tool.panX -= renderer.backgroundImage.width;
     if (tool.panX < 0)
@@ -239,7 +241,7 @@ tools.pan = function (ev) {
       tool.panY -= renderer.backgroundImage.height;
     if (tool.panY < 0)
       tool.panY += renderer.backgroundImage.height;
-
+    */
     return true;
   };
 
@@ -265,8 +267,10 @@ tools.zoom = function (ev) {
     // This is dependent on client canvas size
     this.zoom = Math.min(maxZoom, Math.max(minZoom, this.zoom));
     // Adjust the pan so that we zoom around centre of view
-    panTool.panX += (ev._x * (this.zoom - oldZoom))
-    panTool.panY += (ev._y * (this.zoom - oldZoom))
+    // TODO: Make the screen space coordinates into (tiled) map space.
+    // I.e. the mouse on the left hand corner of window, makes the map zoom from the left most edge of the centre tile, regardless of where that is in the window.
+    panTool.panX -= (ev._x * (this.zoom - oldZoom))
+    panTool.panY -= (ev._y * (this.zoom - oldZoom))
     return true;
   };
 };

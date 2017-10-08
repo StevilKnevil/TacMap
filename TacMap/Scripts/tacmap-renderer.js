@@ -47,37 +47,43 @@ var Renderer = function (bgImg)
       zoomedHeight: zoomTool.zoom * workingCanvas.height,
     }
 
+    // Dbug - centre tile only
+    /*
+    viewportContext.drawImage(workingCanvas,
+      0, 0, src.width, src.height,
+      panTool.panX - 0, panTool.panY - 0, src.zoomedWidth, src.zoomedHeight);
+    */
+
     // Now duplicate the end result to get tiling
     viewportContext.drawImage(workingCanvas,
-      -panTool.panX - src.width, -panTool.panY - src.height, src.zoomedWidth, src.zoomedHeight,
-      0, 0, src.width, src.height);
+      0, 0, src.width, src.height,
+      panTool.panX - src.zoomedWidth, panTool.panY - src.zoomedHeight, src.zoomedWidth, src.zoomedHeight);
     viewportContext.drawImage(workingCanvas,
-      -panTool.panX - src.width, -panTool.panY - 0, src.zoomedWidth, src.zoomedHeight,
-      0, 0, src.width, src.height);
+      0, 0, src.width, src.height,
+      panTool.panX - src.zoomedWidth, panTool.panY - 0, src.zoomedWidth, src.zoomedHeight);
     viewportContext.drawImage(workingCanvas,
-      -panTool.panX - src.width, -panTool.panY + src.height, src.zoomedWidth, src.zoomedHeight,
-      0, 0, src.width, src.height);
+      0, 0, src.width, src.height,
+      panTool.panX - src.zoomedWidth, panTool.panY + src.zoomedHeight, src.zoomedWidth, src.zoomedHeight);
 
     viewportContext.drawImage(workingCanvas,
-      -panTool.panX - 0, -panTool.panY - src.height, src.zoomedWidth, src.zoomedHeight,
-      0, 0, src.width, src.height);
+      0, 0, src.width, src.height,
+      panTool.panX - 0, panTool.panY - src.zoomedHeight, src.zoomedWidth, src.zoomedHeight);
     viewportContext.drawImage(workingCanvas,
-      -panTool.panX - 0, -panTool.panY - 0, src.zoomedWidth, src.zoomedHeight,
-      0, 0, src.width, src.height);
+      0, 0, src.width, src.height,
+      panTool.panX - 0, panTool.panY - 0, src.zoomedWidth, src.zoomedHeight);
     viewportContext.drawImage(workingCanvas,
-      -panTool.panX - 0, -panTool.panY + src.height, src.zoomedWidth, src.zoomedHeight,
-      0, 0, src.width, src.height);
+      0, 0, src.width, src.height,
+      panTool.panX - 0, panTool.panY + src.zoomedHeight, src.zoomedWidth, src.zoomedHeight);
 
     viewportContext.drawImage(workingCanvas,
-      -panTool.panX + src.width, -panTool.panY - src.height, src.zoomedWidth, src.zoomedHeight,
-      0, 0, src.width, src.height);
+      0, 0, src.width, src.height,
+      panTool.panX + src.zoomedWidth, panTool.panY - src.zoomedHeight, src.zoomedWidth, src.zoomedHeight);
     viewportContext.drawImage(workingCanvas,
-      -panTool.panX + src.width, -panTool.panY - 0, src.zoomedWidth, src.zoomedHeight,
-      0, 0, src.width, src.height);
+      0, 0, src.width, src.height,
+      panTool.panX + src.zoomedWidth, panTool.panY - 0, src.zoomedWidth, src.zoomedHeight);
     viewportContext.drawImage(workingCanvas,
-      -panTool.panX + src.width, -panTool.panY + src.height, src.zoomedWidth, src.zoomedHeight,
-      0, 0, src.width, src.height);
-
+      0, 0, src.width, src.height,
+      panTool.panX + src.zoomedWidth, panTool.panY + src.zoomedHeight, src.zoomedWidth, src.zoomedHeight);
   };
 
   //---------------------------------------------------------------------------------------------------------------------
@@ -91,40 +97,40 @@ var Renderer = function (bgImg)
     var src = {
       width: transientWorkingCanvas.width,
       height: transientWorkingCanvas.height,
-      zoomedWidth: zoomTool.zoom * transientWorkingCanvas.width,
-      zoomedHeight: zoomTool.zoom * transientWorkingCanvas.height,
+      zoomedWidth: zoomTool.zoom * workingCanvas.width,
+      zoomedHeight: zoomTool.zoom * workingCanvas.height,
     }
 
     // Now duplicate the end result to get tiling
     transientViewportContext.drawImage(transientWorkingCanvas,
-      -panTool.panX - src.width, -panTool.panY - src.height, src.zoomedWidth, src.zoomedHeight,
-      0, 0, src.width, src.height);
+      0, 0, src.width, src.height,
+      panTool.panX - src.zoomedWidth, panTool.panY - src.zoomedHeight, src.zoomedWidth, src.zoomedHeight);
     transientViewportContext.drawImage(transientWorkingCanvas,
-      -panTool.panX - src.width, -panTool.panY - 0, src.zoomedWidth, src.zoomedHeight,
-      0, 0, src.width, src.height);
+      0, 0, src.width, src.height,
+      panTool.panX - src.zoomedWidth, panTool.panY - 0, src.zoomedWidth, src.zoomedHeight);
     transientViewportContext.drawImage(transientWorkingCanvas,
-      -panTool.panX - src.width, -panTool.panY + src.height, src.zoomedWidth, src.zoomedHeight,
-      0, 0, src.width, src.height);
+      0, 0, src.width, src.height,
+      panTool.panX - src.zoomedWidth, panTool.panY + src.zoomedHeight, src.zoomedWidth, src.zoomedHeight);
 
     transientViewportContext.drawImage(transientWorkingCanvas,
-      -panTool.panX - 0, -panTool.panY - src.height, src.zoomedWidth, src.zoomedHeight,
-      0, 0, src.width, src.height);
+      0, 0, src.width, src.height,
+      panTool.panX - 0, panTool.panY - src.zoomedHeight, src.zoomedWidth, src.zoomedHeight);
     transientViewportContext.drawImage(transientWorkingCanvas,
-      -panTool.panX - 0, -panTool.panY - 0, src.zoomedWidth, src.zoomedHeight,
-      0, 0, src.width, src.height);
+      0, 0, src.width, src.height,
+      panTool.panX - 0, panTool.panY - 0, src.zoomedWidth, src.zoomedHeight);
     transientViewportContext.drawImage(transientWorkingCanvas,
-      -panTool.panX - 0, -panTool.panY + src.height, src.zoomedWidth, src.zoomedHeight,
-      0, 0, src.width, src.height);
+      0, 0, src.width, src.height,
+      panTool.panX - 0, panTool.panY + src.zoomedHeight, src.zoomedWidth, src.zoomedHeight);
 
     transientViewportContext.drawImage(transientWorkingCanvas,
-      -panTool.panX + src.width, -panTool.panY - src.height, src.zoomedWidth, src.zoomedHeight,
-      0, 0, src.width, src.height);
+      0, 0, src.width, src.height,
+      panTool.panX + src.zoomedWidth, panTool.panY - src.zoomedHeight, src.zoomedWidth, src.zoomedHeight);
     transientViewportContext.drawImage(transientWorkingCanvas,
-      -panTool.panX + src.width, -panTool.panY - 0, src.zoomedWidth, src.zoomedHeight,
-      0, 0, src.width, src.height);
+      0, 0, src.width, src.height,
+      panTool.panX + src.zoomedWidth, panTool.panY - 0, src.zoomedWidth, src.zoomedHeight);
     transientViewportContext.drawImage(transientWorkingCanvas,
-      -panTool.panX + src.width, -panTool.panY + src.height, src.zoomedWidth, src.zoomedHeight,
-      0, 0, src.width, src.height);
+      0, 0, src.width, src.height,
+      panTool.panX + src.zoomedWidth, panTool.panY + src.zoomedHeight, src.zoomedWidth, src.zoomedHeight);
   };
 
   //---------------------------------------------------------------------------------------------------------------------
@@ -309,8 +315,8 @@ var Renderer = function (bgImg)
       ev.wheelDelta = Math.max(-1, Math.min(1, (ev.wheelDelta || -ev.detail)));
 
       // Work out the mouse position in canvas space
-      ev.canvasX = Math.round((ev._x * zoomTool.zoom) - panTool.panX);
-      ev.canvasY = Math.round((ev._y * zoomTool.zoom) - panTool.panY);
+      ev.canvasX = Math.round((ev._x - panTool.panX) * zoomTool.zoom);
+      ev.canvasY = Math.round((ev._y - panTool.panY) * zoomTool.zoom);
     }
 
     var needsRedraw = false;
