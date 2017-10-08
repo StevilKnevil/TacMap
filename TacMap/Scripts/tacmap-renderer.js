@@ -368,16 +368,16 @@ var Renderer = function (bgImg)
 
   //---------------------------------------------------------------------------------------------------------------------
   var init = function (bgImg) {
+    var container = document.getElementById('container');
+
     // Set up the output canvas
     {
       viewportCanvas = document.getElementById('whiteBoard');
-      viewportCanvas.width = 700;
-      viewportCanvas.height = 400;
+      viewportCanvas.width = container.offsetWidth;
+      viewportCanvas.height = container.offsetHeight;
       // Get the 2D canvas context.
       viewportContext = viewportCanvas.getContext('2d');
     }
-
-    var container = viewportCanvas.parentNode;
 
     // Add the 'immediate mode' output canvas.
     {
