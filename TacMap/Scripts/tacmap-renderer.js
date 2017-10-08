@@ -39,8 +39,6 @@ var Renderer = function (bgImg)
     // Now update the main output canvas
     viewportContext.clearRect(0, 0, viewportCanvas.width, viewportCanvas.height);
 
-    // Calculate an aspectFactor such that we take a section of the source image such that it fits the dest viewport without scaling
-    var aspectFactor = workingCanvas.width / viewportCanvas.height;
     // Helper calcs
     var src = {
       width: workingCanvas.width,
@@ -89,8 +87,6 @@ var Renderer = function (bgImg)
     // Clear the output canvas
     transientViewportContext.clearRect(0, 0, transientViewportCanvas.width, transientViewportCanvas.height);
 
-    // Calculate an aspectFactor such that we take a section of the source image such that it fits the dest viewport without scaling
-    var aspectFactor = transientWorkingCanvas.width / viewportCanvas.height;
     // Helper calcs
     var src = {
       width: transientWorkingCanvas.width,
