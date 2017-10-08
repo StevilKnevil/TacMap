@@ -36,10 +36,19 @@ tools.pencil = function () {
     if (tool.started) {
       drawObject.CurrentX = ev.canvasX;
       drawObject.CurrentY = ev.canvasY;
+      drawObject.Size = document.getElementById("brushSizeSlider").value;
+      drawObject.Col = document.getElementById("brushColourPicker").value;
       renderer.DrawToolToServer(drawObject);
       // Store this point to start the next time
       drawObject.StartX = ev.canvasX;
       drawObject.StartY = ev.canvasY;
+    }
+    // Always draw the creation tool outline too - even if we're drawing
+    {
+      drawObject.CurrentX = ev.canvasX;
+      drawObject.CurrentY = ev.canvasY;
+      drawObject.Size = document.getElementById("brushSizeSlider").value;
+      renderer.DrawCreationTool(drawObject);
     }
   };
 
@@ -48,20 +57,12 @@ tools.pencil = function () {
     if (tool.started) {
       drawObject.CurrentX = ev.canvasX;
       drawObject.CurrentY = ev.canvasY;
+      drawObject.Size = document.getElementById("brushSizeSlider").value;
+      drawObject.Col = document.getElementById("brushColourPicker").value;
       renderer.DrawToolToServer(drawObject);
       tool.started = false;
     }
   };
-  /*
-  this.mouseout = function (ev) {
-    if (tool.started) {
-      var message = JSON.stringify(drawObjectsCollection);
-      whiteboardHub.server.sendDraw(message, $("#sessinId").val(), $("#groupName").val(), $("#userName").val());
-    }
-    tool.started = false;
-
-  }
-  */
 };
 
 //---------------------------------------------------------------------------------------------------------------------
@@ -74,6 +75,7 @@ tools.rect = function () {
   this.mousedown = function (ev) {
     drawObject.StartX = ev.canvasX;
     drawObject.StartY = ev.canvasY;
+    drawObject.Col = document.getElementById("brushColourPicker").value;
     tool.started = true;
   };
 
@@ -106,6 +108,7 @@ tools.line = function () {
   this.mousedown = function (ev) {
     drawObject.StartX = ev.canvasX;
     drawObject.StartY = ev.canvasY;
+    drawObject.Col = document.getElementById("brushColourPicker").value;
     tool.started = true;
   };
 
@@ -140,6 +143,7 @@ tools.text = function () {
       tool.started = true;
       drawObject.StartX = ev.canvasX;
       drawObject.StartY = ev.canvasY;
+      drawObject.Col = document.getElementById("brushColourPicker").value;
       var text_to_add = prompt('Enter the text:', ' ', 'Add Text');
       drawObject.Text = "";
       drawObject.Text = text_to_add;
@@ -182,13 +186,22 @@ tools.erase = function (ev) {
     drawObject.StartY = ev.canvasY;
   };
   this.mousemove = function (ev) {
-    if (!tool.started) {
-      // TODO draw the ghost outline of the brush as transient
-      return;
+    if (tool.started) {
+      drawObject.CurrentX = ev.canvasX;
+      drawObject.CurrentY = ev.canvasY;
+      drawObject.Size = document.getElementById("brushSizeSlider").value;
+      renderer.DrawToolToServer(drawObject);
+      // Store this point to start the next time
+      drawObject.StartX = ev.canvasX;
+      drawObject.StartY = ev.canvasY;
     }
-    drawObject.StartX = ev.canvasX;
-    drawObject.StartY = ev.canvasY;
-    renderer.DrawToolToServer(drawObject);
+    // Always draw the creation tool outline too - even if we're drawing
+    {
+      drawObject.CurrentX = ev.canvasX;
+      drawObject.CurrentY = ev.canvasY;
+      drawObject.Size = document.getElementById("brushSizeSlider").value;
+      renderer.DrawCreationTool(drawObject);
+    }
   };
   this.mouseup = function (ev) {
     drawObject.StartX = ev.canvasX;

@@ -150,11 +150,20 @@ var Renderer = function (bgImg)
       ctx.stroke();
     }
     else if (drawObject.Tool == DrawTools.Pencil) {
-      // TODO - we apply the eraser and pencil immediately - the creation tool should be a chose of the brush used
+      // draw a circle to indicate where drawing will happen
+      var radius = drawObject.Size;
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = '#000000';
+      drawTiled(function () {
+        ctx.beginPath();
+        ctx.arc(drawObject.CurrentX, drawObject.CurrentY, radius, 0, 2 * Math.PI, false);
+        ctx.stroke();
+      }, ctx);
+
     }
     else if (drawObject.Tool == DrawTools.Text) {
       ctx.font = 'normal 16px Calibri';
-      ctx.fillStyle = "blue";
+      ctx.fillStyle = '#000000';
       ctx.textAlign = "left";
       ctx.textBaseline = "bottom";
       drawTiled(function () {
@@ -162,7 +171,14 @@ var Renderer = function (bgImg)
       }, ctx);
     }
     else if (drawObject.Tool == DrawTools.Erase) {
-      // TODO - we apply the eraser and pencil immediately - the creation tool should be a chose of the brush used
+      var radius = drawObject.Size;
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = '#000000';
+      drawTiled(function () {
+        ctx.beginPath();
+        ctx.arc(drawObject.CurrentX, drawObject.CurrentY, radius, 0, 2 * Math.PI, false);
+        ctx.stroke();
+      }, ctx);
     }
     else if (drawObject.Tool == DrawTools.Rect) {
       var x = Math.min(drawObject.CurrentX, drawObject.StartX);
@@ -194,6 +210,7 @@ var Renderer = function (bgImg)
     ctx.save();
 
     if (drawObject.Tool == DrawTools.Line) {
+      ctx.strokeStyle = drawObject.Col;
       ctx.beginPath();
       drawTiled(function () {
         ctx.moveTo(drawObject.StartX, drawObject.StartY);
@@ -202,17 +219,17 @@ var Renderer = function (bgImg)
       ctx.stroke();
     }
     else if (drawObject.Tool == DrawTools.Pencil) {
-      ctx.beginPath();
-      ctx.strokeStyle = '#ff0000';
+      var radius = drawObject.Size;
+      ctx.fillStyle = drawObject.Col;
       drawTiled(function () {
-        ctx.moveTo(drawObject.StartX, drawObject.StartY);
-        ctx.lineTo(drawObject.CurrentX, drawObject.CurrentY);
+        ctx.beginPath();
+        ctx.arc(drawObject.CurrentX, drawObject.CurrentY, radius, 0, 2 * Math.PI, false);
+        ctx.fill();
       }, ctx);
-      ctx.stroke();
     }
     else if (drawObject.Tool == DrawTools.Text) {
       ctx.font = 'normal 16px Calibri';
-      ctx.fillStyle = "blue";
+      ctx.fillStyle = drawObject.Col;
       ctx.textAlign = "left";
       ctx.textBaseline = "bottom";
       drawTiled(function () {
@@ -222,11 +239,16 @@ var Renderer = function (bgImg)
     else if (drawObject.Tool == DrawTools.Erase) {
       ctx.fillStyle = "rgba(0,0,0,1)";
       ctx.globalCompositeOperation = "destination-out";
+      var radius = drawObject.Size;
       drawTiled(function () {
-        ctx.fillRect(drawObject.StartX, drawObject.StartY, 10, 10);
-      }, ctx);
+        ctx.beginPath();
+        ctx.arc(drawObject.CurrentX, drawObject.CurrentY, radius, 0, 2 * Math.PI, false);
+        ctx.fill();
+      }, ctx)
+
     }
     else if (drawObject.Tool == DrawTools.Rect) {
+      ctx.strokeStyle = drawObject.Col;
       var x = Math.min(drawObject.CurrentX, drawObject.StartX);
       var y = Math.min(drawObject.CurrentY, drawObject.StartY);
       var w = Math.abs(drawObject.CurrentX - drawObject.StartX);
@@ -369,8 +391,8 @@ var Renderer = function (bgImg)
 
     // Set up the working canvas to hold the overall imagecanvas that holds the real overall image
     {
-      //workingCanvas = document.getElementById('debugCanvas');
-      workingCanvas = document.createElement('canvas');
+      workingCanvas = document.getElementById('debugCanvas');
+      //workingCanvas = document.createElement('canvas');
       workingCanvas.width = bgImg.width;
       workingCanvas.height = bgImg.height;
       workingContext = workingCanvas.getContext("2d");
@@ -390,8 +412,8 @@ var Renderer = function (bgImg)
 
     // Set up the working canvas to hold the overall imagecanvas that holds the real overall image
     {
-      transientWorkingCanvas = document.getElementById('debugCanvas');
-      //transientWorkingCanvas = document.createElement('canvas');
+      //transientWorkingCanvas = document.getElementById('debugCanvas');
+      transientWorkingCanvas = document.createElement('canvas');
       transientWorkingCanvas.width = bgImg.width;
       transientWorkingCanvas.height = bgImg.height;
       transientWorkingContext = transientWorkingCanvas.getContext("2d");
