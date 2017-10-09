@@ -232,8 +232,6 @@ tools.pan = function (ev) {
 
     tool.clampPan();
 
-    $("#divStatus").html(tool.panX + ", " + tool.panY);
-
     return true;
   };
 
@@ -260,6 +258,18 @@ tools.zoom = function (ev) {
 
   var tool = this;
   this.zoom = 1;
+
+  this.mousedown = function (ev) {
+    tool.started = true;
+  };
+  this.mousemove = function (ev) {
+    if (tool.started) {
+    }
+  };
+
+  this.mouseup = function (ev) {
+    tool.started = false;
+  }
 
   this.wheel = function (ev) {
     var zoomSpeed = 10;
