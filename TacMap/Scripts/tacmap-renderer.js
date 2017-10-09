@@ -275,6 +275,7 @@ var Renderer = function (bgImg)
     ctx.restore();
 
     // update the output image
+    // TODO Maybe move this out of here? Then we can draw lots of things without intermediate updates
     renderer.updateViewport();
   }
 
