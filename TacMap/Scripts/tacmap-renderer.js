@@ -30,11 +30,17 @@ var Renderer = function (bgImg)
   // Add the current contents of the tool canvas to the specified layer
   this.updateViewport = function() {
 
+    workingContext.save();
+
     // Composite the layers onto the background image, then copy that onto the output canvas, finally, clear the background canvas with the image
     workingContext.drawImage(this.backgroundImage, 0, 0);
 
+    workingContext.globalAlpha = 0.5;
+
     // Copy the layer onto the background
     workingContext.drawImage(layerCanvas, 0, 0);
+
+    workingContext.restore();
 
     // Now update the main output canvas
     viewportContext.clearRect(0, 0, viewportCanvas.width, viewportCanvas.height);
@@ -274,6 +280,10 @@ var Renderer = function (bgImg)
   //---------------------------------------------------------------------------------------------------------------------
   this.DrawToolToServer = function (drawObject) {
     theRenderer.DrawTool(drawObject);
+
+    // Clear the transient viewport
+    transientWorkingContext.clearRect(0, 0, transientWorkingCanvas.width, transientWorkingCanvas.height);
+    theRenderer.updateTransientViewport();
 
     // Send the current state of the tool to the server so all clients can see it
     // Consider pencil: will we get message spam?
