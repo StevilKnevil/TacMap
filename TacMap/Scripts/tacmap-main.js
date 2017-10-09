@@ -60,16 +60,16 @@ function SelectTool(toolName) {
     tool = new tools[toolName]();
   }
 
-  if (toolName == "line" || toolName == "curve" || toolName == "measure")
-    viewportCanvas.style.cursor = "crosshair";
+  if (toolName == "line" || toolName == "rect" || toolName == "erase")
+    transientViewportCanvas.style.cursor = "crosshair";
   else if (toolName == "select")
-    viewportCanvas.style.cursor = "default";
+    transientViewportCanvas.style.cursor = "default";
   else if (toolName == "text")
-    viewportCanvas.style.cursor = "text";
+    transientViewportCanvas.style.cursor = "text";
   else if (toolName == "pan")
-    viewportCanvas.style.cursor = "move";
+    transientViewportCanvas.style.cursor = "move";
   else if (toolName == "zoom")
-    viewportCanvas.style.cursor = "nw-resize";
+    transientViewportCanvas.style.cursor = "nw-resize";
 
   ChangeIcons(toolName);
 }
