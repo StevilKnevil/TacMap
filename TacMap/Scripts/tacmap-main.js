@@ -2,8 +2,6 @@
 // The layers all get baked into the final 'output' or 'viewport' canvas which is transformed correctly depending on user view params.
 
 var tacMapHub;
-var tool_default = 'line';
-
 var tool;
 
 var drawObjectsCollection = [];
@@ -29,9 +27,6 @@ $(document).ready(function () {
   {
     // Extract the background image and store it.
     renderer = new Renderer(bgImg);
-    // Activate the default tool.
-    SelectTool(tool_default);
-    toggleBG1();
   }
   bgImg.src = "/Images/backgrounds/testgroup/background.jpg"
 
@@ -43,6 +38,10 @@ $(document).ready(function () {
       $("#btnJoin").click();
     }
   });
+
+  SelectTool('line');
+  // Start the flashing
+  toggleBG1();
 });
 
 //---------------------------------------------------------------------------------------------------------------------
