@@ -227,26 +227,31 @@ tools.pan = function (ev) {
     if (!tool.started) {
       return;
     }
-    tool.panX += ev.movementX * zoomTool.zoom;
-    tool.panY += ev.movementY * zoomTool.zoom;
+    tool.panX += ev.movementX;
+    tool.panY += ev.movementY;
 
-    /*
-    // TODO: reimplement in the correct coordinate system
-    if (tool.panX > renderer.backgroundImage.width)
-      tool.panX -= renderer.backgroundImage.width;
-    if (tool.panX < 0)
-      tool.panX += renderer.backgroundImage.width;
+    tool.clampPan();
 
-    if (tool.panY > renderer.backgroundImage.height)
-      tool.panY -= renderer.backgroundImage.height;
-    if (tool.panY < 0)
-      tool.panY += renderer.backgroundImage.height;
-    */
+    $("#divStatus").html(tool.panX + ", " + tool.panY);
+
     return true;
   };
 
   this.mouseup = function (ev) {
     tool.started = false;
+  }
+
+  this.clampPan = function()
+  {
+    if (tool.panX > renderer.backgroundImage.width * zoomTool.zoom)
+      tool.panX -= renderer.backgroundImage.width * zoomTool.zoom;
+    if (tool.panX < 0)
+      tool.panX += renderer.backgroundImage.width * zoomTool.zoom;
+
+    if (tool.panY > renderer.backgroundImage.height * zoomTool.zoom)
+      tool.panY -= renderer.backgroundImage.height * zoomTool.zoom;
+    if (tool.panY < 0)
+      tool.panY += renderer.backgroundImage.height * zoomTool.zoom;
   }
 };
 
@@ -258,18 +263,35 @@ tools.zoom = function (ev) {
 
   this.wheel = function (ev) {
     var zoomSpeed = 10;
-    var oldZoom = this.zoom;
-    this.zoom += ev.wheelDelta / (120 * zoomSpeed);
-    // Clamp
-    var minZoom = 0.1; // TODO: clamp so that 2x bgSize fits inside viewport
-    var maxZoom = 5;
-    // This is dependent on client canvas size
-    this.zoom = Math.min(maxZoom, Math.max(minZoom, this.zoom));
+    var oldZoom = tool.zoom;
+    tool.zoom += ev.wheelDelta / (120 * zoomSpeed);
+
+    tool.clampZoom();
+
     // Adjust the pan so that we zoom around centre of view
-    panTool.panX -= (ev.canvasX * (this.zoom - oldZoom))
-    panTool.panY -= (ev.canvasY * (this.zoom - oldZoom))
+    panTool.panX -= (ev.canvasX * (tool.zoom - oldZoom))
+    panTool.panY -= (ev.canvasY * (tool.zoom - oldZoom))
+    panTool.clampPan();
     return true;
   };
+
+  this.clampZoom = function()
+  {
+    // Clamp
+    var dim1;
+    var dim2;
+    if (viewportCanvas.width / workingCanvas.width < viewportCanvas.height / workingCanvas.height) {
+      dim1 = viewportCanvas.height;
+      dim2 = workingCanvas.height;
+    } else {
+      dim1 = viewportCanvas.width;
+      dim2 = workingCanvas.width;
+    }
+
+    var minZoom = dim1 / (dim2 * 2); // TODO: clamp so that 2x bgSize fits inside viewport
+    var maxZoom = 5;
+    tool.zoom = Math.min(maxZoom, Math.max(minZoom, this.zoom));
+  }
 };
 
 //---------------------------------------------------------------------------------------------------------------------

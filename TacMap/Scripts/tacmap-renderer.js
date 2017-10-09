@@ -375,6 +375,11 @@ var Renderer = function (bgImg)
     viewportCanvas.height = container.offsetHeight;
     transientViewportCanvas.width = viewportCanvas.width;
     transientViewportCanvas.height = viewportCanvas.height;
+
+    // Fake a mouse event to foce the clamping of zoom
+    zoomTool.clampZoom();
+
+    // Update the viewport
     theRenderer.updateViewport();
   }
 
