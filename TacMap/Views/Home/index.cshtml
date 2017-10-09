@@ -8,7 +8,7 @@
         overflow: auto;
         scrollbar-base-color: #ffeaff;
     }
-    #whiteBoard
+    #ouputCanvas
     {
         /*border: 1px dashed #CCCCCC;
         border-style: dotted;
@@ -74,7 +74,7 @@
     <div id="divShare" style="background-color: Silver; color: Teal;">
       <span>
         <i>
-          <b>Invite </b>, share the whiteboard using below link or click on it to open in a new window
+          <b>Invite </b>, share the TacMap using below link or click on it to open in a new window
           and check this out.
         </i>
         <br />
@@ -92,7 +92,7 @@
   </div>
 
   <div id="container" style="width: auto; height: 100%; overflow: hidden;">
-    <canvas id="whiteBoard"></canvas>
+    <canvas id="ouputCanvas"></canvas>
     <div id="status">
     </div>
   </div>
@@ -120,11 +120,11 @@
 <script src="~/signalR/hubs"></script>
 <script src="~/Scripts/tacmap-renderer.js" type="text/javascript"></script>
 <script src="~/Scripts/tacmap-tools.js" type="text/javascript"></script>
-<script src="~/Scripts/whiteboard_1.js" type="text/javascript"></script>
+<script src="~/Scripts/tacmap-main.js" type="text/javascript"></script>
 <input  type="hidden" id="userName" value="@ViewData["UserName"]" />
 <div id="dialog-form">
     <div style="font-size: medium">
-        <b>Join Whiteboard</b></div>
+        <b>Join TacMap</b></div>
     <hr />
     <br />
     <div style="font-size: small">

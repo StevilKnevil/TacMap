@@ -11,8 +11,8 @@ namespace TacMap.SignalR
   /// <summary>
   /// 
   /// </summary>
-  [HubName("whiteboardHub")]
-  public class WhiteboardHub : Hub
+  [HubName("tacMapHub")]
+  public class TacMapHub : Hub
   {
     /// <summary>
     /// 
@@ -105,7 +105,7 @@ namespace TacMap.SignalR
     /// <summary>
     /// 
     /// </summary>
-    public WhiteboardHub()
+    public TacMapHub()
     {
     }
 

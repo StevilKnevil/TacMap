@@ -50,7 +50,7 @@ namespace TacMap.Controllers
 
             return View();
         }
-        public ActionResult Whiteboard()
+        public ActionResult TacMap()
         {
             return View();
         }

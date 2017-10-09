@@ -2,9 +2,9 @@
 
 // TODO: Clean up cruft
 // There is a 'transientViewportCanvas' which gets cleared and redrawn as the user drags around with the mouse. when the drawing is complete this then gets baked into the canvas fo rthe current layer
-// The layers all get baked into the final 'whiteboard' canvas (canvaso - canvasoutput? need renaming) which is transformed correctly depending on user view params.
+// The layers all get baked into the final 'output' canvas (canvaso - canvasoutput? need renaming) which is transformed correctly depending on user view params.
 
-var whiteboardHub;
+var tacMapHub;
 var tool_default = 'line';
 
 var tool;
@@ -132,8 +132,8 @@ function JoinHub() {
 
 
 
-      whiteboardHub = $.connection.whiteboardHub;
-      whiteboardHub.client.handleDraw = function (message, sessnId, name) {
+      tacMapHub = $.connection.tacMapHub;
+      tacMapHub.client.handleDraw = function (message, sessnId, name) {
         var sessId = $('#sessinId').val();
         // Only draw things from other sessions, we handle our own drawing locally
         if (sessId != sessnId) {
@@ -156,22 +156,22 @@ function JoinHub() {
 
 
       };
-      whiteboardHub.client.chatJoined = function (name) {
+      tacMapHub.client.chatJoined = function (name) {
         $("#divMessage").append("<span><i> <b>" + name + " joined. <br/></b></i></span>");
         $("#dialog-form").dialog("close");
       }
-      whiteboardHub.client.chat = function (name, message) {
+      tacMapHub.client.chat = function (name, message) {
         $("#divMessage").append("<span>" + name + ": " + message + "</span><br/>");
         var objDiv = document.getElementById("divMessage");
         objDiv.scrollTop = objDiv.scrollHeight;
       };
       var sendMessage = function () {
-        whiteboardHub.sendChat($(".chat-message").val(), $("#groupName").val(), $("#userName").val());
+        tacMapHub.sendChat($(".chat-message").val(), $("#groupName").val(), $("#userName").val());
       };
 
 
       $.connection.hub.start().done(function () {
-        whiteboardHub.server.joinGroup($("#groupName").val()).done(function () { whiteboardHub.server.joinChat($("#userName").val(), $("#groupName").val()); });
+        tacMapHub.server.joinGroup($("#groupName").val()).done(function () { tacMapHub.server.joinChat($("#userName").val(), $("#groupName").val()); });
       });
 
       $("#btnSend").click(
@@ -179,7 +179,7 @@ function JoinHub() {
         var message = $("#txtMessage").val();
         var message = $.trim(message);
         if (message.length > 0) {
-          whiteboardHub.server.sendChat(message, $("#groupName").val(), $("#userName").val());
+          tacMapHub.server.sendChat(message, $("#groupName").val(), $("#userName").val());
           $("#txtMessage").val("");
         }
       }

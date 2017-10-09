@@ -280,7 +280,7 @@ var Renderer = function (bgImg)
     drawObjectsCollection = [];
     drawObjectsCollection.push(drawObject);
     var message = JSON.stringify(drawObjectsCollection);
-    whiteboardHub.server.sendDraw(message, $("#sessinId").val(), $("#groupName").val(), $("#userName").val());
+    tacMapHub.server.sendDraw(message, $("#sessinId").val(), $("#groupName").val(), $("#userName").val());
   }
 
   ///////////
@@ -389,7 +389,7 @@ var Renderer = function (bgImg)
 
     // Set up the output canvas
     {
-      viewportCanvas = document.getElementById('whiteBoard');
+      viewportCanvas = document.getElementById('ouputCanvas');
       // Get the 2D canvas context.
       viewportContext = viewportCanvas.getContext('2d');
     }
