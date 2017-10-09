@@ -227,13 +227,15 @@ var Renderer = function (bgImg)
       ctx.stroke();
     }
     else if (drawObject.Tool == DrawTools.Pencil) {
-      var radius = drawObject.Size;
-      ctx.fillStyle = drawObject.Col;
+      ctx.strokeStyle = drawObject.Col;
+      ctx.lineWidth = drawObject.Size * 2; // convert from radius to a diameter
+      ctx.lineCap = "round";
+      ctx.beginPath();
       drawTiled(function () {
-        ctx.beginPath();
-        ctx.arc(drawObject.CurrentX, drawObject.CurrentY, radius, 0, 2 * Math.PI, false);
-        ctx.fill();
+        ctx.moveTo(drawObject.StartX, drawObject.StartY);
+        ctx.lineTo(drawObject.CurrentX, drawObject.CurrentY);
       }, ctx);
+      ctx.stroke();
     }
     else if (drawObject.Tool == DrawTools.Text) {
       ctx.font = 'normal 16px Calibri';
@@ -245,15 +247,14 @@ var Renderer = function (bgImg)
       }, ctx);
     }
     else if (drawObject.Tool == DrawTools.Erase) {
-      ctx.fillStyle = "rgba(0,0,0,1)";
       ctx.globalCompositeOperation = "destination-out";
-      var radius = drawObject.Size;
+      ctx.lineWidth = drawObject.Size * 2; // convert from radius to a diameter
+      ctx.lineCap = "round";
       drawTiled(function () {
-        ctx.beginPath();
-        ctx.arc(drawObject.CurrentX, drawObject.CurrentY, radius, 0, 2 * Math.PI, false);
-        ctx.fill();
+        ctx.moveTo(drawObject.StartX, drawObject.StartY);
+        ctx.lineTo(drawObject.CurrentX, drawObject.CurrentY);
       }, ctx)
-
+      ctx.stroke();
     }
     else if (drawObject.Tool == DrawTools.Rect) {
       ctx.strokeStyle = drawObject.Col;
