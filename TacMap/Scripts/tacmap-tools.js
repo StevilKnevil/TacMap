@@ -259,18 +259,15 @@ tools.zoom = function (ev) {
   this.wheel = function (ev) {
     var zoomSpeed = 10;
     var oldZoom = this.zoom;
-    this.zoom -= ev.wheelDelta / (120 * zoomSpeed);
+    this.zoom += ev.wheelDelta / (120 * zoomSpeed);
     // Clamp
-    var minZoom = 0.1;
-    var maxZoom = 10;
-    // Clamp zoom to 3x width or height of back ground (whichever is smaller)
+    var minZoom = 0.1; // TODO: clamp so that 2x bgSize fits inside viewport
+    var maxZoom = 5;
     // This is dependent on client canvas size
     this.zoom = Math.min(maxZoom, Math.max(minZoom, this.zoom));
     // Adjust the pan so that we zoom around centre of view
-    // TODO: Make the screen space coordinates into (tiled) map space.
-    // I.e. the mouse on the left hand corner of window, makes the map zoom from the left most edge of the centre tile, regardless of where that is in the window.
-    panTool.panX -= (ev._x * (this.zoom - oldZoom))
-    panTool.panY -= (ev._y * (this.zoom - oldZoom))
+    panTool.panX -= (ev.canvasX * (this.zoom - oldZoom))
+    panTool.panY -= (ev.canvasY * (this.zoom - oldZoom))
     return true;
   };
 };

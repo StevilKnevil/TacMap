@@ -47,7 +47,7 @@ var Renderer = function (bgImg)
       zoomedHeight: zoomTool.zoom * workingCanvas.height,
     }
 
-    // Dbug - centre tile only
+    // Debug - centre tile only
     /*
     viewportContext.drawImage(workingCanvas,
       0, 0, src.width, src.height,
@@ -315,8 +315,8 @@ var Renderer = function (bgImg)
       ev.wheelDelta = Math.max(-1, Math.min(1, (ev.wheelDelta || -ev.detail)));
 
       // Work out the mouse position in canvas space
-      ev.canvasX = Math.round((ev._x - panTool.panX) * zoomTool.zoom);
-      ev.canvasY = Math.round((ev._y - panTool.panY) * zoomTool.zoom);
+      ev.canvasX = Math.round((ev._x - panTool.panX) / zoomTool.zoom);
+      ev.canvasY = Math.round((ev._y - panTool.panY) / zoomTool.zoom);
     }
 
     var needsRedraw = false;
