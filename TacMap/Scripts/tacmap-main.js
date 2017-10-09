@@ -38,6 +38,7 @@ $(document).ready(function () {
 
   $("#userName").val("");
   $("#dialog-form").dialog({ autoOpen: false, width: 350, modal: true, closeOnEscape: false });
+  $("#progress-form").dialog({ autoOpen: false, width: 350, modal: true, closeOnEscape: false });
   $("#dialog-form").dialog("open");
   $("#name").keypress(function (e) {
     if (e && e.keyCode == 13) {
@@ -129,6 +130,11 @@ function JoinHub() {
     var name = $("#name").val();
     var name = $.trim(name);
 
+    $("#dialog-form").dialog("close");
+    $("#progress-form").dialog("open");
+    $("#progress-label").html("Getting data from server, please wait...");
+    document.body.style.cursor = 'wait'
+
     if (name.length > 0) {
       $("#userName").val(name);
 
@@ -145,12 +151,13 @@ function JoinHub() {
             // Don't need to sync this to server, as it has come from the server
             renderer.DrawTool(drawObjectCollection[i]);
           }
+          $("#progress-form").dialog("close");
+          document.body.style.cursor = 'pointer';
         }
       };
 
       tacMapHub.client.chatJoined = function (name) {
         $("#divMessage").append("<span><i> <b>" + name + " joined. <br/></b></i></span>");
-        $("#dialog-form").dialog("close");
       }
 
       tacMapHub.client.chat = function (name, message) {
