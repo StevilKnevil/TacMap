@@ -25,10 +25,16 @@ $(document).ready(function () {
   var bgImg = new Image;
   bgImg.onload = function ()
   {
-    // Extract the background image and store it.
+    if (bgImg.width == 0 || bgImg.height == 0)
+    {
+      // Image doesn't exist so default to an empty image
+      bgImg.width = 256;
+      bgImg.height = 256;
+    }
+
     renderer = new Renderer(bgImg);
   }
-  bgImg.src = "/Images/backgrounds/testgroup/background.jpg"
+  bgImg.src = "/Images/backgrounds/" + $("#groupName").val() + "/background.jpg"
 
   $("#userName").val("");
   $("#dialog-form").dialog({ autoOpen: false, width: 350, modal: true, closeOnEscape: false });
