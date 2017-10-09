@@ -1,8 +1,5 @@
-﻿// Recognition : Alvin George, KPMG
-
-// TODO: Clean up cruft
-// There is a 'transientViewportCanvas' which gets cleared and redrawn as the user drags around with the mouse. when the drawing is complete this then gets baked into the canvas fo rthe current layer
-// The layers all get baked into the final 'output' canvas (canvaso - canvasoutput? need renaming) which is transformed correctly depending on user view params.
+﻿// There is a 'transientViewportCanvas' which gets cleared and redrawn as the user drags around with the mouse. when the drawing is complete this then gets baked into the canvas fo rthe current layer
+// The layers all get baked into the final 'output' or 'viewport' canvas which is transformed correctly depending on user view params.
 
 var tacMapHub;
 var tool_default = 'line';
