@@ -138,12 +138,6 @@ function JoinHub() {
           for (var i = 0; i < drawObjectCollection.length; i++) {
             // Don't need to sync this to server, as it has come from the server
             renderer.DrawTool(drawObjectCollection[i]);
-            if (drawObjectCollection[i].DrawState) {
-              if (drawObjectCollection[i].DrawState == DrawStates.Completed) {
-                $("#divStatus").html("<i>" + name + " drawing completing...</i>")
-                $("#divStatus").html("");
-              }
-            }
           }
         }
       };
