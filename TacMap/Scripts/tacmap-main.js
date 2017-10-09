@@ -126,8 +126,6 @@ function JoinHub() {
     if (name.length > 0) {
       $("#userName").val(name);
 
-
-
       tacMapHub = $.connection.tacMapHub;
       tacMapHub.client.handleDraw = function (message, sessnId, name) {
         var sessId = $('#sessinId').val();
@@ -148,23 +146,22 @@ function JoinHub() {
             }
           }
         }
-
-
-
       };
+
       tacMapHub.client.chatJoined = function (name) {
         $("#divMessage").append("<span><i> <b>" + name + " joined. <br/></b></i></span>");
         $("#dialog-form").dialog("close");
       }
+
       tacMapHub.client.chat = function (name, message) {
         $("#divMessage").append("<span>" + name + ": " + message + "</span><br/>");
         var objDiv = document.getElementById("divMessage");
         objDiv.scrollTop = objDiv.scrollHeight;
       };
+
       var sendMessage = function () {
         tacMapHub.sendChat($(".chat-message").val(), $("#groupName").val(), $("#userName").val());
       };
-
 
       $.connection.hub.start().done(function () {
         tacMapHub.server.joinGroup($("#groupName").val()).done(function () { tacMapHub.server.joinChat($("#userName").val(), $("#groupName").val()); });
