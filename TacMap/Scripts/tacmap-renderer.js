@@ -210,78 +210,85 @@ var Renderer = function (bgImg)
   }
 
   //---------------------------------------------------------------------------------------------------------------------
-  this.DrawTool = function (drawObject) {
+  this.DrawTool = function (drawObjectArray) {
 
     // TODO: Clear the transient canvas now we're comitting the shape to permanent. All fixed when reimplemented to store a list of transient shapes and redraw it when it changes.
 
     var ctx = layerContext;
-    ctx.save();
 
-    if (drawObject.Tool == DrawTools.Line) {
-      ctx.strokeStyle = drawObject.Col;
-      ctx.beginPath();
-      drawTiled(function () {
-        ctx.moveTo(drawObject.StartX, drawObject.StartY);
-        ctx.lineTo(drawObject.CurrentX, drawObject.CurrentY);
-      }, ctx);
-      ctx.stroke();
-    }
-    else if (drawObject.Tool == DrawTools.Pencil) {
-      ctx.strokeStyle = drawObject.Col;
-      ctx.lineWidth = drawObject.Size * 2; // convert from radius to a diameter
-      ctx.lineCap = "round";
-      ctx.beginPath();
-      drawTiled(function () {
-        ctx.moveTo(drawObject.StartX, drawObject.StartY);
-        ctx.lineTo(drawObject.CurrentX, drawObject.CurrentY);
-      }, ctx);
-      ctx.stroke();
-    }
-    else if (drawObject.Tool == DrawTools.Text) {
-      ctx.font = 'normal 16px Calibri';
-      ctx.fillStyle = drawObject.Col;
-      ctx.textAlign = "left";
-      ctx.textBaseline = "bottom";
-      drawTiled(function () {
-        ctx.fillText(drawObject.Text, drawObject.StartX, drawObject.StartY);
-      }, ctx);
-    }
-    else if (drawObject.Tool == DrawTools.Erase) {
-      ctx.globalCompositeOperation = "destination-out";
-      ctx.lineWidth = drawObject.Size * 2; // convert from radius to a diameter
-      ctx.lineCap = "round";
-      drawTiled(function () {
-        ctx.moveTo(drawObject.StartX, drawObject.StartY);
-        ctx.lineTo(drawObject.CurrentX, drawObject.CurrentY);
-      }, ctx)
-      ctx.stroke();
-    }
-    else if (drawObject.Tool == DrawTools.Rect) {
-      ctx.strokeStyle = drawObject.Col;
-      var x = Math.min(drawObject.CurrentX, drawObject.StartX);
-      var y = Math.min(drawObject.CurrentY, drawObject.StartY);
-      var w = Math.abs(drawObject.CurrentX - drawObject.StartX);
-      var h = Math.abs(drawObject.CurrentY - drawObject.StartY);
+    for (var i = 0; i < drawObjectArray.length; i++) {
+      var drawObject = drawObjectArray[i];
+      ctx.save();
 
-      if (!w || !h) {
-        return;
+      if (drawObject.Tool == DrawTools.Line) {
+        ctx.strokeStyle = drawObject.Col;
+        ctx.beginPath();
+        drawTiled(function () {
+          ctx.moveTo(drawObject.StartX, drawObject.StartY);
+          ctx.lineTo(drawObject.CurrentX, drawObject.CurrentY);
+        }, ctx);
+        ctx.stroke();
       }
+      else if (drawObject.Tool == DrawTools.Pencil) {
+        ctx.strokeStyle = drawObject.Col;
+        ctx.lineWidth = drawObject.Size * 2; // convert from radius to a diameter
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        drawTiled(function () {
+          ctx.moveTo(drawObject.StartX, drawObject.StartY);
+          ctx.lineTo(drawObject.CurrentX, drawObject.CurrentY);
+        }, ctx);
+        ctx.stroke();
+      }
+      else if (drawObject.Tool == DrawTools.Text) {
+        ctx.font = 'normal 16px Calibri';
+        ctx.fillStyle = drawObject.Col;
+        ctx.textAlign = "left";
+        ctx.textBaseline = "bottom";
+        drawTiled(function () {
+          ctx.fillText(drawObject.Text, drawObject.StartX, drawObject.StartY);
+        }, ctx);
+      }
+      else if (drawObject.Tool == DrawTools.Erase) {
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.lineWidth = drawObject.Size * 2; // convert from radius to a diameter
+        ctx.lineCap = "round";
+        drawTiled(function () {
+          ctx.moveTo(drawObject.StartX, drawObject.StartY);
+          ctx.lineTo(drawObject.CurrentX, drawObject.CurrentY);
+        }, ctx)
+        ctx.stroke();
+      }
+      else if (drawObject.Tool == DrawTools.Rect) {
+        ctx.strokeStyle = drawObject.Col;
+        var x = Math.min(drawObject.CurrentX, drawObject.StartX);
+        var y = Math.min(drawObject.CurrentY, drawObject.StartY);
+        var w = Math.abs(drawObject.CurrentX - drawObject.StartX);
+        var h = Math.abs(drawObject.CurrentY - drawObject.StartY);
 
-      drawTiled(function () {
-        ctx.strokeRect(x, y, w, h);
-      }, ctx);
+        if (!w || !h) {
+          return;
+        }
+
+        drawTiled(function () {
+          ctx.strokeRect(x, y, w, h);
+        }, ctx);
+      }
+      ctx.restore();
     }
-
-    ctx.restore();
-
-    // update the output image
-    // TODO Maybe move this out of here? Then we can draw lots of things without intermediate updates
-    renderer.updateViewport();
   }
 
   //---------------------------------------------------------------------------------------------------------------------
   this.DrawToolToServer = function (drawObject) {
-    theRenderer.DrawTool(drawObject);
+    // This is only called with a single object from the tools, so wrap it in an array
+    var drawObjectArray = [];
+    drawObjectArray.push(drawObject);
+
+    // Draw the tool the output canvas
+    theRenderer.DrawTool(drawObjectArray);
+
+    // update the output image
+    renderer.updateViewport();
 
     // Clear the transient viewport
     transientWorkingContext.clearRect(0, 0, transientWorkingCanvas.width, transientWorkingCanvas.height);
@@ -289,11 +296,18 @@ var Renderer = function (bgImg)
 
     // Send the current state of the tool to the server so all clients can see it
     // Consider pencil: will we get message spam?
-    drawObjectsCollection = [];
-    drawObjectsCollection.push(drawObject);
-    var message = JSON.stringify(drawObjectsCollection);
+    var message = JSON.stringify(drawObjectArray);
     tacMapHub.server.sendDraw(message, $("#sessinId").val(), $("#groupName").val(), $("#userName").val());
   }
+
+  //---------------------------------------------------------------------------------------------------------------------
+  this.DrawToolsFromServer = function (drawObjectArray) {
+    // Draw the tool the output canvas
+    theRenderer.DrawTool(drawObjectArray);
+    // update the output image
+    renderer.updateViewport();
+  }
+
 
   ///////////
   // Private

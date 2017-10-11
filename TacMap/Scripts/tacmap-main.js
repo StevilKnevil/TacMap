@@ -147,10 +147,7 @@ function JoinHub() {
 
           $("#divStatus").html("<i>" + name + " drawing...</i>")
           var drawObjectCollection = jQuery.parseJSON(message)
-          for (var i = 0; i < drawObjectCollection.length; i++) {
-            // Don't need to sync this to server, as it has come from the server
-            renderer.DrawTool(drawObjectCollection[i]);
-          }
+          renderer.DrawToolsFromServer(drawObjectCollection);
           $("#progress-form").dialog("close");
           document.body.style.cursor = 'pointer';
         }
